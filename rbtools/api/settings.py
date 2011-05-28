@@ -198,8 +198,8 @@ class Settings(object):
     def remove_setting(self, name):
         """removes a setting"""
         if name not in self.settings:
-            self.util.raise_warning('UnkownSetting', 'Setting "' + name + \
-                'does not exist')
+            self.util.raise_warning('UnknownSetting', 'Setting "' + name + \
+                '" does not exist')
 
         del self.settings[name]
         self.save()
@@ -209,8 +209,8 @@ class Settings(object):
         value = None
 
         if name not in self.settings:
-            self.util.raise_warning('UnkownSetting', 'Setting "' + name + \
-                'does not exist')
+            self.util.raise_warning('UnknownSetting', 'Setting "' + name + \
+                '" does not exist')
         else:
             value = self.settings[name]
 
