@@ -714,6 +714,8 @@ class RepositoryList(ResourceList):
             The ID of the repository from the list which matches the path
             specified.  If no match is found, then None is returned.
         """
+        # TODO: git repositories cloned from local repo may miss '.git'
+        #       at the end
         for repo in self:
             if repo.get_field('path') == path:
                 return repo.get_field('id')
