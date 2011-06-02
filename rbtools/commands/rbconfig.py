@@ -21,9 +21,7 @@ def main():
 
     if len(sys.argv) > 1:
         valid = True
-        cwd = os.getcwd()
-        scripts_config = os.path.join(cwd, 'rb_scripts.dat')
-        settings = Settings(config_file=scripts_config)
+        settings = Settings()
         arg_index = 1
 
         if sys.argv[arg_index] == CLEAR:

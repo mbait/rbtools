@@ -34,7 +34,7 @@ class Main(object):
         self.more_valid = False
 
         if len(sys.argv) > 1:
-            settings = Settings(config_file='rb_scripts.dat')
+            settings = Settings()
             cookie = settings.get_cookie_file()
             server_url = settings.get_server_url()
             server = ServerInterface(server_url, cookie)

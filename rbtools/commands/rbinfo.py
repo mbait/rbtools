@@ -29,7 +29,7 @@ def main():
     resource_map[REVIEW_REQUEST] = 'review_requests'
 
     if len(sys.argv) > 1:
-        settings = Settings(config_file='rb_scripts.dat')
+        settings = Settings()
         cookie = settings.get_cookie_file()
         server_url = settings.get_server_url()
 

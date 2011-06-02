@@ -25,7 +25,7 @@ def main():
 
 def diff(args):
     valid = False
-    settings = Settings(config_file='rb_scripts.dat')
+    settings = Settings()
 
     if len(args) > 0:  # command given
         cookie = settings.get_cookie_file()
