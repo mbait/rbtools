@@ -1,4 +1,5 @@
 import os
+import sys
 
 from rbtools.api.utilities import RBUtilities
 
@@ -18,9 +19,10 @@ class Settings(object):
     contain anything except for #. Values will be converted to the correct
     type if that type is accepted.
     """
-    cwd = os.getcwd()
-    cwd = cwd if ('rbtools/rbtools' in cwd) else cwd + '/rbtools'
-    CONFIG_FILE = cwd + '/config.dat'
+    CONFIG_NAME = '/.reviewboardrc'
+    CONFIG_FILE = os.getcwd() + CONFIG_NAME
+    if not os.path.isfile(CONFIG_FILE):
+        CONFIG_FILE = os.path.expanduser('~') + CONFIG_NAME
 
     util = None
     config_file = None
@@ -41,7 +43,7 @@ class Settings(object):
 
     def load(self):
         """loads the settings file"""
-        if os.path.isfile(self.config_file):
+        try:
             file = open(self.config_file, 'r')
 
             if file < 0:
@@ -111,6 +113,9 @@ class Settings(object):
                 line = file.readline()
 
             file.close()
+        except IOError as (errno, strerror):
+            print 'Failed to load config from "%s": %s' % (self.config_file, strerror)
+            sys.exit(1)
 
     def save(self):
         """saves the current settings"""
