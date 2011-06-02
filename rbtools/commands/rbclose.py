@@ -24,7 +24,7 @@ def main():
     valid = False
 
     if len(sys.argv) > 2:
-        settings = Settings(config_file='rb_scripts.dat')
+        settings = Settings()
         cookie = settings.get_cookie_file()
         server_url = settings.get_server_url()
         resource_id = sys.argv[2]

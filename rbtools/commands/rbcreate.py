@@ -13,7 +13,7 @@ def main():
     valid = True
 
     if len(sys.argv) > 0:
-        settings = Settings(config_file='rb_scripts.dat')
+        settings = Settings()
         cookie = settings.get_cookie_file()
         server_url = settings.get_server_url()
         client = get_client(server_url)

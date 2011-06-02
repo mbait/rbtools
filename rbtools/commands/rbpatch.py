@@ -19,7 +19,7 @@ COMMIT_OPTION = '-c'
 
 def main():
     valid = False
-    settings = Settings(config_file='rb_scripts.dat')
+    settings = Settings()
 
     if len(sys.argv) > 1:
         valid = True

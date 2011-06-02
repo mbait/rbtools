@@ -372,7 +372,7 @@ class ResourceBrowser(object):
 
 
 def main():
-    settings = Settings(config_file='rb_scripts.dat')
+    settings = Settings()
     COOKIE_FILE = settings.get_cookie_file()
     SERVER_URL = settings.get_server_url()
     browser = ResourceBrowser(SERVER_URL)
