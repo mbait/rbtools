@@ -44,6 +44,7 @@ class Settings(object):
     def load(self):
         """loads the settings file"""
         try:
+            # TODO: apply ConfigParser
             file = open(self.config_file, 'r')
 
             if file < 0:
