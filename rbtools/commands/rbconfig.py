@@ -1,61 +1,33 @@
-import os
-import string
-import sys
+import optparse
 
 from rbtools.api.settings import Settings
 
 
-SERVER_URL = '--server-url'
-COOKIE_FILE = '--cookie-file'
-USER_NAME = '--user-name'
-CLEAR = '-c'
-PRESET_SETTINGS = [
-    SERVER_URL,
-    COOKIE_FILE,
-    USER_NAME,
-]
-
-
 def main():
-    valid = False
+    p = optparse.OptionParser(prog='rb config')
 
-    if len(sys.argv) > 1:
-        valid = True
-        settings = Settings()
-        arg_index = 1
+    p.add_option('-u', '--user', action='store', dest='user', help='user name')
+    p.add_option('-U', '--url', action='store', dest='server_url',
+                 help='path to ReviewBoard server')
+    p.add_option('-c', '--cookie-file', action='store', dest='cookie')
 
-        if sys.argv[arg_index] == CLEAR:
-            settings.clear()
-            arg_index = arg_index + 1
-        
-        while arg_index < len(sys.argv):
-            split = string.split(sys.argv[arg_index], ':', 1)
-            arg_index = arg_index + 1
+    opts, args = p.parse_args()
+    settings = Settings()
+    has_options = False
+    if opts.user:
+        settings.add_setting('user', opts.user)
+        has_options = True
+    if opts.server_url:
+        settings.add_setting('server_url', opts.server_url)
+        has_options = True
+    if opts.cookie:
+        settings.add_setting('cookie', opts.cookie)
+        has_options = True
 
-            if split[0] in PRESET_SETTINGS:
-                if split[0] == SERVER_URL:
-                    settings.set_server_url(split[1])
-                elif split[0] == COOKIE_FILE:
-                    settings.set_cookie_file(split[1])
-                elif split[0] == USER_NAME:
-                    settings.change_setting('user_name', split[1])
-                else:
-                    # The above case statement needs to be updated
-                    pass
-            else:
-                settings.add_setting(split[0], split[1])
-
+    if has_options:
         settings.save()
-
-    if not valid:
-        print "usage: rb config [-c] [config_item_name:config_item_setting] " \
-              ".. [config_item_name:config_item_setting]"
-        print ""
-        print "Include -c to clear the settings file."
-        print "The preset config_item_names are:"
-
-        for n in PRESET_SETTINGS:
-            print "    %s" % n
+    else:
+        p.print_usage()
 
 
 if __name__ == "__main__":
