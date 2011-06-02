@@ -6,6 +6,7 @@ from rbtools.api.utilities import RBUtilities
 BLANK = 0
 USER_ADDED = '#user added settings:'
 COMMENT = '#'
+CONFIG_NAME = '/.reviewboardrc'
 
 
 class Settings(object):
@@ -19,10 +20,10 @@ class Settings(object):
     contain anything except for #. Values will be converted to the correct
     type if that type is accepted.
     """
-    CONFIG_NAME = '/.reviewboardrc'
-    CONFIG_FILE = os.getcwd() + CONFIG_NAME
-    if not os.path.isfile(CONFIG_FILE):
-        CONFIG_FILE = os.path.expanduser('~') + CONFIG_NAME
+    config_default = os.getcwd() + CONFIG_NAME
+    config_global = os.path.expanduser('~') + CONFIG_NAME
+    if not os.path.isfile(config_default) and os.path.isfile(config_global):
+        config_default = config_global
 
     util = None
     config_file = None
@@ -31,14 +32,13 @@ class Settings(object):
     ordered = None
     none_added = None
 
-    def __init__(self, util=RBUtilities(), config_file=CONFIG_FILE):
+    def __init__(self, util=RBUtilities(), config_file=config_default):
         super(Settings, self).__init__()
         self.util = util
         self.config_file = config_file
         self.settings = {}
         self.settings_comment = {}
         self.ordered = []
-        self.load()
         self.none_added = True
 
     def load(self):
@@ -115,8 +115,8 @@ class Settings(object):
 
             file.close()
         except IOError as (errno, strerror):
-            print 'Failed to load config from "%s": %s' % (self.config_file, strerror)
-            sys.exit(1)
+            self.util.die('Failed to load config from "%s": %s' %
+                          (self.config_file, strerror))
 
     def save(self):
         """saves the current settings"""
