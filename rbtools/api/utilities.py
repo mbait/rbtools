@@ -111,8 +111,8 @@ class RBUtilities(object):
         else:
             p = subprocess.Popen(command, env=env)
 
-	p.wait()	
-	return None
+        p.wait()
+        return None
 
     def die(self, msg=None):
         """
