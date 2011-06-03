@@ -15,7 +15,7 @@ def main():
     settings = Settings()
     has_options = False
     if opts.user:
-        settings.add_setting('user', opts.user)
+        settings.add_setting('user_name', opts.user)
         has_options = True
     if opts.server_url:
         settings.add_setting('server_url', opts.server_url)
