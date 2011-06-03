@@ -20,7 +20,7 @@ class GitClient(Client):
         This is an actual implementation that returns info about the Git repo
         """
 
-        if not self.util.check_install('git --help'):
+        if not self.util.check_install('git --version'):
             return None
 
         git_dir = self.util.execute(["git", "rev-parse", "--git-dir"],
