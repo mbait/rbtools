@@ -11,6 +11,7 @@ def main():
 
     if len(sys.argv) > 1:
         settings = Settings()
+        settings.load()
         cookie = settings.get_cookie_file()
         server_url = settings.get_server_url()
         resource_id = sys.argv[1]

@@ -20,6 +20,7 @@ COMMIT_OPTION = '-c'
 def main():
     valid = False
     settings = Settings()
+    settings.load()
 
     if len(sys.argv) > 1:
         valid = True
