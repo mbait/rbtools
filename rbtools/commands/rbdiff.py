@@ -26,6 +26,7 @@ def main():
 def diff(args):
     valid = False
     settings = Settings()
+    settings.load()
 
     if len(args) > 0:  # command given
         cookie = settings.get_cookie_file()

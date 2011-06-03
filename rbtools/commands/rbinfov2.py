@@ -35,6 +35,7 @@ class Main(object):
 
         if len(sys.argv) > 1:
             settings = Settings()
+            settings.load()
             cookie = settings.get_cookie_file()
             server_url = settings.get_server_url()
             server = ServerInterface(server_url, cookie)

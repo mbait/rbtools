@@ -14,6 +14,7 @@ def main():
 
     if len(sys.argv) > 0:
         settings = Settings()
+        settings.load()
         cookie = settings.get_cookie_file()
         server_url = settings.get_server_url()
         client = get_client(server_url)
