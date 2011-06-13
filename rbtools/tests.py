@@ -22,9 +22,13 @@ except ImportError:
 import nose
 
 from rbtools.postreview import execute, load_config_files
-from rbtools.postreview import APIError, GitClient, MercurialClient, \
-                               RepositoryInfo, ReviewBoardServer, \
-                               SvnRepositoryInfo
+from rbtools.postreview import APIError, ReviewBoardServer
+
+from rbtools.clients.client import RepositoryInfo
+from rbtools.clients.git import GitClient
+from rbtools.clients.mercurial import MercurialClient
+from rbtools.clients.svn import SVNRepositoryInfo
+
 import rbtools.postreview
 
 
@@ -777,8 +781,8 @@ class MercurialSubversionClientTests(MercurialTestBase):
 
 class SVNClientTests(unittest.TestCase):
     def test_relative_paths(self):
-        """Testing SvnRepositoryInfo._get_relative_path"""
-        info = SvnRepositoryInfo('http://svn.example.com/svn/', '/', '')
+        """Testing SVNRepositoryInfo._get_relative_path"""
+        info = SVNRepositoryInfo('http://svn.example.com/svn/', '/', '')
         self.assertEqual(info._get_relative_path('/foo', '/bar'), None)
         self.assertEqual(info._get_relative_path('/', '/trunk/myproject'),
                          None)
