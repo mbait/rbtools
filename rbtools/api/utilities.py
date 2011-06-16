@@ -8,6 +8,7 @@ import tempfile
 
 from tempfile import mkstemp
 
+tempfiles = []
 
 class RBUtilities(object):
     """A collection of utility functions
