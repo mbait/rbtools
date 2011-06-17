@@ -231,6 +231,9 @@ class Settings(object):
     def set_cookie_file(self, value):
         self.change_setting('cookie', value)
 
+    def set_user_name(self, value):
+        self.change_setting('user_name', value)
+
     def get_server_url(self):
         return self.get_setting('server_url')
 
@@ -239,3 +242,6 @@ class Settings(object):
 
     def get_cookie_file(self):
         return self.get_setting('cookie')
+
+    def get_user_name(self):
+        return self.get_setting('user_name')
