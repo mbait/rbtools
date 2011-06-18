@@ -16,7 +16,7 @@ class SVNClient(SCMClient):
     """
 
     def __init__(self):
-        SCMClient.__init__(self)
+        super(SVNClient, self).__init__()
 
     def get_repository_info(self):
         if not check_install('svn help'):

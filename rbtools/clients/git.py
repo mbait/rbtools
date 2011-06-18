@@ -15,7 +15,7 @@ class GitClient(SCMClient):
     remote repository, whether git, SVN or Perforce.
     """
     def __init__(self):
-        SCMClient.__init__(self)
+        super(GitClient, self).__init__()
         # Store the 'correct' way to invoke git, just plain old 'git' by default
         self.git = 'git'
 

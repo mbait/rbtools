@@ -15,7 +15,7 @@ class MercurialClient(SCMClient):
     """
 
     def __init__(self):
-        SCMClient.__init__(self)
+        super(MercurialClient, self).__init__()
 
         self.hgrc = {}
         self._type = 'hg'

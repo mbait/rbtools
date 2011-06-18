@@ -18,7 +18,7 @@ class PerforceClient(SCMClient):
     and generates compatible diffs.
     """
     def __init__(self):
-        SCMClient.__init__(self)
+        super(PerforceClient, self).__init__()
 
     def get_repository_info(self):
         if not check_install('p4 help'):
