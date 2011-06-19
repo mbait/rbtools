@@ -154,6 +154,7 @@ class GitClientTests(unittest.TestCase):
         os.chdir(self.orig_dir)
 
         rbtools.postreview.user_config = load_config_files('')
+        self.client.user_config = rbtools.postreview.user_config
         self.client.options.parent_branch = None
 
     def tearDown(self):
@@ -497,6 +498,7 @@ class MercurialClientTests(MercurialTestBase):
 
         self.client.get_repository_info()
         rbtools.postreview.user_config = load_config_files('')
+        self.client.user_config = rbtools.postreview.user_config
         self.client.options.parent_branch = None
         os.chdir(self.clone_dir)
 
@@ -711,6 +713,7 @@ class MercurialSubversionClientTests(MercurialTestBase):
 
     def _stub_in_config_and_options(self):
         rbtools.postreview.user_config = load_config_files('')
+        self.client.user_config = rbtools.postreview.user_config
         self.client.options.parent_branch = None
 
     def testGetRepositoryInfoSimple(self):

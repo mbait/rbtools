@@ -1225,6 +1225,8 @@ def main():
     debug('Home = %s' % homepath)
 
     repository_info, tool = scan_usable_client(options)
+    tool.user_config = user_config
+    tool.configs = configs
 
     # Verify that options specific to an SCM Client have not been mis-used.
     tool.check_options()

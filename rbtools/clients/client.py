@@ -9,7 +9,9 @@ class SCMClient(object):
     and generating diffs.
     """
 
-    def __init__(self, options=None):
+    def __init__(self, user_config=None, configs=None, options=None):
+        self._user_config = user_config
+        self._config = configs
         self._options = options
 
     def get_repository_info(self):
@@ -25,12 +27,12 @@ class SCMClient(object):
         """
         server_url = None
 
-        if user_config:
-            server_url = self._get_server_from_config(user_config,
+        if self._user_config:
+            server_url = self._get_server_from_config(self._user_config,
                                                       repository_info)
 
         if not server_url:
-            for config in configs:
+            for config in self._configs:
                 server_url = self._get_server_from_config(config,
                                                           repository_info)
 
@@ -110,6 +112,22 @@ class RepositoryInfo(object):
         all other clients, this is a noop.
         """
         return self
+
+    @property
+    def user_config(self):
+        return self._user_config
+
+    @user_config.setter
+    def user_config(self, value):
+        self._user_config = value
+
+    @property
+    def configs(self):
+        return self._configs
+
+    @configs.setter
+    def configs(self, value):
+        self._configs = value
 
     @property
     def options(self):
