@@ -1,6 +1,10 @@
 import logging
+import marshal
 import os
 import re
+import socket
+import stat
+import subprocess
 
 from rbtools.clients.client import SCMClient, RepositoryInfo
 from rbtools.utils.checks import check_install

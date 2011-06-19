@@ -3,6 +3,7 @@ import re
 import sys
 
 from rbtools.clients.client import SCMClient, RepositoryInfo
+from rbtools.clients.svn import SVNClient, SVNRepositoryInfo
 from rbtools.utils.checks import check_install
 from rbtools.utils.process import die, execute
 
@@ -84,7 +85,7 @@ class GitClient(SCMClient):
                                                  'branch. Defaulting to "master"\n')
                                 self.upstream_branch = 'master'
 
-                        return SvnRepositoryInfo(path=path,
+                        return SVNRepositoryInfo(path=path,
                                                  base_path=base_path,
                                                  uuid=uuid,
                                                  supports_parent_diffs=True)

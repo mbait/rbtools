@@ -1,5 +1,6 @@
 import logging
 import os
+import socket
 
 from rbtools.clients.client import SCMClient, RepositoryInfo
 from rbtools.utils.checks import check_install

@@ -2,22 +2,18 @@
 import base64
 import cookielib
 import getpass
-import marshal
 import mimetools
 import os
 import re
-import socket
-import stat
-import subprocess
 import sys
-import urllib
 import urllib2
-from datetime import datetime
 from optparse import OptionParser
 from pkg_resources import parse_version
 from urlparse import urljoin, urlparse
 
 from rbtools.clients.getclient import get_client
+from rbtools.clients.perforce import PerforceClient
+from rbtools.clients.plastic import PlasticClient
 from rbtools.utils.files import walk_parents
 from rbtools.utils.process import die
 
@@ -33,14 +29,6 @@ try:
     from json import loads as json_loads
 except ImportError:
     from simplejson import loads as json_loads
-
-# This specific import is necessary to handle the paths for
-# cygwin enabled machines.
-if (sys.platform.startswith('win')
-    or sys.platform.startswith('cygwin')):
-    import ntpath as cpath
-else:
-    import posixpath as cpath
 
 from rbtools import get_package_version, get_version_string
 

@@ -7,6 +7,15 @@ from rbtools.utils.checks import check_gnu_diff, check_install
 from rbtools.utils.files import make_tempfile
 from rbtools.utils.process import die, execute
 
+# This specific import is necessary to handle the paths for
+# cygwin enabled machines.
+if (sys.platform.startswith('win')
+    or sys.platform.startswith('cygwin')):
+    import ntpath as cpath
+else:
+    import posixpath as cpath
+
+
 class ClearCaseClient(SCMClient):
     """
     A wrapper around the clearcase tool that fetches repository

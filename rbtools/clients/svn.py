@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import urllib
 
 from rbtools.clients.client import SCMClient, RepositoryInfo
 from rbtools.utils.checks import check_gnu_diff, check_install
