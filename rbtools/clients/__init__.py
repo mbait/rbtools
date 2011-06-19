@@ -19,7 +19,7 @@ SCMCLIENTS = (
 )
 
 
-def get_client(options):
+def scan_usable_client(options):
     repository_info = None
     tool = None
 

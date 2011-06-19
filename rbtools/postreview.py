@@ -11,7 +11,7 @@ from optparse import OptionParser
 from pkg_resources import parse_version
 from urlparse import urljoin, urlparse
 
-from rbtools.clients.getclient import get_client
+from rbtools.clients import scan_usable_client
 from rbtools.clients.perforce import PerforceClient
 from rbtools.clients.plastic import PlasticClient
 from rbtools.utils.files import walk_parents
@@ -1224,7 +1224,7 @@ def main():
     debug('RBTools %s' % get_version_string())
     debug('Home = %s' % homepath)
 
-    repository_info, tool = get_client(options)
+    repository_info, tool = scan_usable_client(options)
 
     # Verify that options specific to an SCM Client have not been mis-used.
     tool.check_options()
