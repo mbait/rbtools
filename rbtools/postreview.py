@@ -18,12 +18,6 @@ from rbtools.utils.files import walk_parents
 from rbtools.utils.process import die
 
 try:
-    from hashlib import md5
-except ImportError:
-    # Support Python versions before 2.5.
-    from md5 import md5
-
-try:
     # Specifically import json_loads, to work around some issues with
     # installations containing incompatible modules named "json".
     from json import loads as json_loads
