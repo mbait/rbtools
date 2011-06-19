@@ -154,7 +154,6 @@ class ClearCaseClient(SCMClient):
 
         changeranges = []
         for path, previous, current in changeset:
-            version_number = self._determine_version(current)
             changeranges.append(
                 (self._construct_extended_path(path, previous),
                 self._construct_extended_path(path, current))
