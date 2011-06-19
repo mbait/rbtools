@@ -3,6 +3,7 @@ import re
 import sys
 import urllib
 
+from rbtools.api.errors import APIError
 from rbtools.clients.client import SCMClient, RepositoryInfo
 from rbtools.utils.checks import check_gnu_diff, check_install
 from rbtools.utils.files import walk_parents
