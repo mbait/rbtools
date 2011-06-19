@@ -19,6 +19,8 @@ from pkg_resources import parse_version
 from tempfile import mkstemp
 from urlparse import urljoin, urlparse
 
+from rbtools.clients.getclient import get_client
+
 try:
     from hashlib import md5
 except ImportError:
@@ -933,16 +935,6 @@ class ReviewBoardServer(object):
         return content_type, content
 
 
-SCMCLIENTS = (
-    SVNClient(),
-    CVSClient(),
-    GitClient(),
-    MercurialClient(),
-    PerforceClient(),
-    ClearCaseClient(),
-    PlasticClient(),
-)
-
 def debug(s):
     """
     Prints debugging information if post-review was run with --debug
@@ -1383,45 +1375,6 @@ def parse_options(args):
     return args
 
 
-def determine_client():
-    repository_info = None
-    tool = None
-
-    # Try to find the SCM Client we're going to be working with.
-    for tool in SCMCLIENTS:
-        repository_info = tool.get_repository_info()
-
-        if repository_info:
-            break
-
-    if not repository_info:
-        if options.repository_url:
-            print "No supported repository could be access at the supplied url."
-        else:
-            print "The current directory does not contain a checkout from a"
-            print "supported source code repository."
-        sys.exit(1)
-
-    # Verify that options specific to an SCM Client have not been mis-used.
-    if options.change_only and not repository_info.supports_changesets:
-        sys.stderr.write("The --change-only option is not valid for the "
-                         "current SCM client.\n")
-        sys.exit(1)
-
-    if options.parent_branch and not repository_info.supports_parent_diffs:
-        sys.stderr.write("The --parent option is not valid for the "
-                         "current SCM client.\n")
-        sys.exit(1)
-
-    if ((options.p4_client or options.p4_port) and \
-        not isinstance(tool, PerforceClient)):
-        sys.stderr.write("The --p4-client and --p4-port options are not valid "
-                         "for the current SCM client.\n")
-        sys.exit(1)
-
-    return (repository_info, tool)
-
-
 def main():
     origcwd = os.path.abspath(os.getcwd())
 
@@ -1441,7 +1394,7 @@ def main():
     debug('RBTools %s' % get_version_string())
     debug('Home = %s' % homepath)
 
-    repository_info, tool = determine_client()
+    repository_info, tool = get_client()
 
     # Verify that options specific to an SCM Client have not been mis-used.
     tool.check_options()
