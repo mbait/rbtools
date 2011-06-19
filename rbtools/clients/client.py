@@ -81,6 +81,26 @@ class SCMClient(object):
 
         return None
 
+    @property
+    def user_config(self):
+        return self._user_config
+
+    @user_config.setter
+    def user_config(self, value):
+        self._user_config = value
+
+    @property
+    def configs(self):
+        return self._configs
+
+    @configs.setter
+    def configs(self, value):
+        self._configs = value
+
+    @property
+    def options(self):
+        return self._options
+
 
 class RepositoryInfo(object):
     """
@@ -112,23 +132,3 @@ class RepositoryInfo(object):
         all other clients, this is a noop.
         """
         return self
-
-    @property
-    def user_config(self):
-        return self._user_config
-
-    @user_config.setter
-    def user_config(self, value):
-        self._user_config = value
-
-    @property
-    def configs(self):
-        return self._configs
-
-    @configs.setter
-    def configs(self, value):
-        self._configs = value
-
-    @property
-    def options(self):
-        return self._options
