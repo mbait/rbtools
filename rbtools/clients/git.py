@@ -1,4 +1,10 @@
+import os
+import re
+import sys
+
 from rbtools.clients.client import SCMClient, RepositoryInfo
+from rbtools.utils.checks import check_install
+from rbtools.utils.process import die, execute
 
 
 class GitClient(SCMClient):

@@ -10,16 +10,16 @@ import socket
 import stat
 import subprocess
 import sys
-import tempfile
 import urllib
 import urllib2
 from datetime import datetime
 from optparse import OptionParser
 from pkg_resources import parse_version
-from tempfile import mkstemp
 from urlparse import urljoin, urlparse
 
 from rbtools.clients.getclient import get_client
+from rbtools.utils.files import walk_parents
+from rbtools.utils.process import die
 
 try:
     from hashlib import md5
@@ -114,13 +114,11 @@ DEBUG           = False
 
 
 user_config = None
-tempfiles = []
 options = None
 configs = []
 
 ADD_REPOSITORY_DOCS_URL = \
     'http://www.reviewboard.org/docs/manual/dev/admin/management/repositories/'
-GNU_DIFF_WIN32_URL = 'http://gnuwin32.sourceforge.net/packages/diffutils.htm'
 
 
 class APIError(Exception):
@@ -941,138 +939,6 @@ def debug(s):
     """
     if DEBUG or options and options.debug:
         print ">>> %s" % s
-
-
-def make_tempfile(content=None):
-    """
-    Creates a temporary file and returns the path. The path is stored
-    in an array for later cleanup.
-    """
-    fd, tmpfile = mkstemp()
-    if content:
-        os.write(fd, content)
-    os.close(fd)
-    tempfiles.append(tmpfile)
-    return tmpfile
-
-
-def check_install(command):
-    """
-    Try executing an external command and return a boolean indicating whether
-    that command is installed or not.  The 'command' argument should be
-    something that executes quickly, without hitting the network (for
-    instance, 'svn help' or 'git --version').
-    """
-    try:
-        subprocess.Popen(command.split(' '),
-                         stdin=subprocess.PIPE,
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
-        return True
-    except OSError:
-        return False
-
-
-def check_gnu_diff():
-    """Checks if GNU diff is installed, and informs the user if it's not."""
-    has_gnu_diff = False
-
-    try:
-        result = execute(['diff', '--version'], ignore_errors=True)
-        has_gnu_diff = 'GNU diffutils' in result
-    except OSError:
-        pass
-
-    if not has_gnu_diff:
-        sys.stderr.write('\n')
-        sys.stderr.write('GNU diff is required for Subversion '
-                         'repositories. Make sure it is installed\n')
-        sys.stderr.write('and in the path.\n')
-        sys.stderr.write('\n')
-
-        if os.name == 'nt':
-            sys.stderr.write('On Windows, you can install this from:\n')
-            sys.stderr.write(GNU_DIFF_WIN32_URL)
-            sys.stderr.write('\n')
-
-        die()
-
-
-def execute(command, env=None, split_lines=False, ignore_errors=False,
-            extra_ignore_errors=(), translate_newlines=True, with_errors=True):
-    """
-    Utility function to execute a command and return the output.
-    """
-    if isinstance(command, list):
-        debug(subprocess.list2cmdline(command))
-    else:
-        debug(command)
-
-    if env:
-        env.update(os.environ)
-    else:
-        env = os.environ.copy()
-
-    env['LC_ALL'] = 'en_US.UTF-8'
-    env['LANGUAGE'] = 'en_US.UTF-8'
-
-    if with_errors:
-        errors_output = subprocess.STDOUT
-    else:
-        errors_output = subprocess.PIPE
-
-    if sys.platform.startswith('win'):
-        p = subprocess.Popen(command,
-                             stdin=subprocess.PIPE,
-                             stdout=subprocess.PIPE,
-                             stderr=errors_output,
-                             shell=False,
-                             universal_newlines=translate_newlines,
-                             env=env)
-    else:
-        p = subprocess.Popen(command,
-                             stdin=subprocess.PIPE,
-                             stdout=subprocess.PIPE,
-                             stderr=errors_output,
-                             shell=False,
-                             close_fds=True,
-                             universal_newlines=translate_newlines,
-                             env=env)
-    if split_lines:
-        data = p.stdout.readlines()
-    else:
-        data = p.stdout.read()
-    rc = p.wait()
-    if rc and not ignore_errors and rc not in extra_ignore_errors:
-        die('Failed to execute command: %s\n%s' % (command, data))
-
-    return data
-
-
-def die(msg=None):
-    """
-    Cleanly exits the program with an error message. Erases all remaining
-    temporary files.
-    """
-    for tmpfile in tempfiles:
-        try:
-            os.unlink(tmpfile)
-        except:
-            pass
-
-    if msg:
-        print msg
-
-    sys.exit(1)
-
-
-def walk_parents(path):
-    """
-    Walks up the tree to the root directory.
-    """
-    while os.path.splitdrive(path)[1] != os.sep:
-        yield path
-        path = os.path.dirname(path)
 
 
 def load_config_files(homepath):

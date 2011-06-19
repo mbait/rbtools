@@ -1,4 +1,9 @@
+import logging
+import os
+
 from rbtools.clients.client import SCMClient, RepositoryInfo
+from rbtools.utils.checks import check_install
+from rbtools.utils.process import execute
 
 
 class CVSClient(SCMClient):
@@ -6,6 +11,9 @@ class CVSClient(SCMClient):
     A wrapper around the cvs tool that fetches repository
     information and generates compatible diffs.
     """
+    def __init__(self):
+        SCMClient.__init__(self)
+
     def get_repository_info(self):
         if not check_install("cvs"):
             return None
@@ -31,7 +39,8 @@ class CVSClient(SCMClient):
                 repository_path = repository_path.replace('%s:' % host,
                                                           '%s:' % canon)
             except socket.error, msg:
-                debug("failed to get fqdn for %s, msg=%s" % (host, msg))
+                logging.debug("failed to get fqdn for %s, msg=%s"
+                              % (host, msg))
 
         return RepositoryInfo(path=repository_path)
 

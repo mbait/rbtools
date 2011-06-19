@@ -1,4 +1,11 @@
+import logging
+import os
+import re
+
 from rbtools.clients.client import SCMClient, RepositoryInfo
+from rbtools.utils.checks import check_install
+from rbtools.utils.files import make_tempfile
+from rbtools.utils.process import die, execute
 
 
 class PerforceClient(SCMClient):
@@ -6,6 +13,9 @@ class PerforceClient(SCMClient):
     A wrapper around the p4 Perforce tool that fetches repository information
     and generates compatible diffs.
     """
+    def __init__(self):
+        SCMClient.__init__(self)
+
     def get_repository_info(self):
         if not check_install('p4 help'):
             return None
@@ -314,7 +324,7 @@ class PerforceClient(SCMClient):
         # reviewing.
         cl_is_pending = False
 
-        debug("Generating diff for changenum %s" % changenum)
+        logging.debug("Generating diff for changenum %s" % changenum)
 
         description = []
 
@@ -395,7 +405,7 @@ class PerforceClient(SCMClient):
 
             changetype = m.group(3)
 
-            debug('Processing %s of %s' % (changetype, depot_path))
+            logging.debug('Processing %s of %s' % (changetype, depot_path))
 
             old_file = new_file = empty_filename
             old_depot_path = new_depot_path = None
@@ -550,7 +560,7 @@ class PerforceClient(SCMClient):
         the file readonly and that causes a later call to unlink fail. So we
         make the file read/write.
         """
-        debug('Writing "%s" to "%s"' % (depot_path, tmpfile))
+        logging.debug('Writing "%s" to "%s"' % (depot_path, tmpfile))
         execute(["p4", "print", "-o", tmpfile, "-q", depot_path])
         os.chmod(tmpfile, stat.S_IREAD | stat.S_IWRITE)
 

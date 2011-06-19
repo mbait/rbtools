@@ -1,7 +1,11 @@
 import os
+import re
 import sys
 
 from rbtools.clients.client import SCMClient, RepositoryInfo
+from rbtools.utils.checks import check_gnu_diff, check_install
+from rbtools.utils.files import walk_parents
+from rbtools.utils.process import execute
 
 
 class SVNClient(SCMClient):
@@ -9,6 +13,10 @@ class SVNClient(SCMClient):
     A wrapper around the svn Subversion tool that fetches repository
     information and generates compatible diffs.
     """
+
+    def __init__(self):
+        SCMClient.__init__(self)
+
     def get_repository_info(self):
         if not check_install('svn help'):
             return None

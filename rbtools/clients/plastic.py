@@ -1,6 +1,11 @@
+import logging
 import os
+import re
 
 from rbtools.clients.client import SCMClient, RepositoryInfo
+from rbtools.utils.checks import check_install
+from rbtools.utils.files import make_tempfile
+from rbtools.utils.process import die, execute
 
 
 class PlasticClient(SCMClient):
@@ -8,6 +13,10 @@ class PlasticClient(SCMClient):
     A wrapper around the cm Plastic tool that fetches repository
     information and generates compatible diffs
     """
+    def __init__(self):
+        SCMClient.__init__(self)
+
+
     def get_repository_info(self):
         if not check_install('cm version'):
             return None
@@ -35,7 +44,7 @@ class PlasticClient(SCMClient):
                                     split_lines=False,
                                     ignore_errors=True).strip()
 
-        debug("Workspace is %s" % self.workspacedir)
+        logging.debug("Workspace is %s" % self.workspacedir)
 
         return RepositoryInfo(path,
                               supports_changesets=True,
@@ -78,7 +87,7 @@ class PlasticClient(SCMClient):
         return (self.branch_diff(revision_range), None)
 
     def changenum_diff(self, changenum):
-        debug("changenum_diff: %s" % (changenum))
+        logging.debug("changenum_diff: %s" % (changenum))
         files = execute(["cm", "log", "cs:" + changenum,
                          "--csFormat={items}",
                          "--itemFormat={shortstatus} {path} "
@@ -87,7 +96,7 @@ class PlasticClient(SCMClient):
                          "dst:{dstcmpath} rev:revid:{dstdirrevid}{newline}"],
                         split_lines = True)
 
-        debug("got files: %s" % (files))
+        logging.debug("got files: %s" % (files))
 
         # Diff generation based on perforce client
         diff_lines = []
@@ -139,7 +148,7 @@ class PlasticClient(SCMClient):
                 newrevspec = m.group("revspec")
                 parentrevspec = m.group("parentrevspec")
 
-                debug("Type %s File %s Old %s New %s" % (changetype,
+                logging.debug("Type %s File %s Old %s New %s" % (changetype,
                                                          filename,
                                                          parentrevspec,
                                                          newrevspec))
@@ -180,7 +189,7 @@ class PlasticClient(SCMClient):
         return ''.join(diff_lines)
 
     def branch_diff(self, args):
-        debug("branch diff: %s" % (args))
+        logging.debug("branch diff: %s" % (args))
 
         if len(args) > 0:
             branch = args[0]
@@ -195,7 +204,7 @@ class PlasticClient(SCMClient):
 
         files = execute(["cm", "fbc", branch, "--format={3} {4}"],
                         split_lines = True)
-        debug("got files: %s" % (files))
+        logging.debug("got files: %s" % (files))
 
         diff_lines = []
 
@@ -244,7 +253,7 @@ class PlasticClient(SCMClient):
             elif newrevspec == "rev:revid:-1":
                 changetype = "R"
 
-            debug("Type %s File %s Old %s New %s" % (changetype,
+            logging.debug("Type %s File %s Old %s New %s" % (changetype,
                                                      basefilename,
                                                      parentrevspec,
                                                      newrevspec))
@@ -340,8 +349,5 @@ class PlasticClient(SCMClient):
 
     def write_file(self, filename, filespec, tmpfile):
         """ Grabs a file from Plastic and writes it to a temp file """
-        debug("Writing '%s' (rev %s) to '%s'" % (filename, filespec, tmpfile))
+        logging.debug("Writing '%s' (rev %s) to '%s'" % (filename, filespec, tmpfile))
         execute(["cm", "cat", filespec, "--file=" + tmpfile])
-
-
-

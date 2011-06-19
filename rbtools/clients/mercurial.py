@@ -1,7 +1,11 @@
+import logging
 import os
+import re
 import sys
 
 from rbtools.clients.client import SCMClient, RepositoryInfo
+from rbtools.utils.checks import check_install
+from rbtools.utils.process import execute
 
 
 class MercurialClient(SCMClient):
@@ -11,6 +15,8 @@ class MercurialClient(SCMClient):
     """
 
     def __init__(self):
+        SCMClient.__init__(self)
+
         self.hgrc = {}
         self._type = 'hg'
         self._hg_root = ''
@@ -66,7 +72,8 @@ class MercurialClient(SCMClient):
 
             if (not self._remote_path and self.hgrc.get(rc_key)):
                 self._remote_path = (candidate, self.hgrc.get(rc_key))
-                debug('Using candidate path %r: %r' % self._remote_path)
+                logging.debug('Using candidate path %r: %r' %
+                              self._remote_path)
 
                 return
 
@@ -232,8 +239,8 @@ class MercurialClient(SCMClient):
             revno = rev[len('r:'):]
 
             if branch_name == current_branch and revno.isdigit():
-                debug('Found outgoing changeset %s for branch %r'
-                      % (revno, branch_name))
+                logging.debug('Found outgoing changeset %s for branch %r'
+                              % (revno, branch_name))
                 outgoing_changesets.append(int(revno))
 
         return outgoing_changesets

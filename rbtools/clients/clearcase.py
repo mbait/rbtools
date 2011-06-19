@@ -1,5 +1,11 @@
-from rbtools.clients.client import SCMClient, RepositoryInfo
+import logging
+import os
+import sys
 
+from rbtools.clients.client import SCMClient, RepositoryInfo
+from rbtools.utils.checks import check_gnu_diff, check_install
+from rbtools.utils.files import make_tempfile
+from rbtools.utils.process import die, execute
 
 class ClearCaseClient(SCMClient):
     """
@@ -8,6 +14,9 @@ class ClearCaseClient(SCMClient):
     This client assumes that cygwin is installed on windows.
     """
     viewtype = None
+
+    def __init__(self):
+        SCMClient.__init__(self)
 
     def get_repository_info(self):
         """Returns information on the Clear Case repository.
@@ -311,7 +320,7 @@ class ClearCaseClient(SCMClient):
             elif cpath.exists(new_file):
                 dl = self.diff_files(old_file, new_file)
             else:
-                debug("File %s does not exist or access is denied." % new_file)
+                logging.debug("File %s does not exist or access is denied." % new_file)
                 continue
 
             if dl:
@@ -343,7 +352,7 @@ class ClearCaseRepositoryInfo(RepositoryInfo):
 
         # Find VOB's family uuid based on VOB's tag
         uuid = self._get_vobs_uuid(self.vobstag)
-        debug("Repositorie's %s uuid is %r" % (self.vobstag, uuid))
+        logging.debug("Repositorie's %s uuid is %r" % (self.vobstag, uuid))
 
         repositories = server.get_repositories()
         for repository in repositories:
@@ -355,7 +364,7 @@ class ClearCaseRepositoryInfo(RepositoryInfo):
             if not info or uuid != info['uuid']:
                 continue
 
-            debug('Matching repository uuid:%s with path:%s' %(uuid,
+            logging.debug('Matching repository uuid:%s with path:%s' %(uuid,
                   info['repopath']))
             return ClearCaseRepositoryInfo(info['repopath'],
                     info['repopath'], uuid)

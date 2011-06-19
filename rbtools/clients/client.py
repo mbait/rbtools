@@ -1,8 +1,16 @@
+import logging
+
+from rbtools.utils.process import die
+
+
 class SCMClient(object):
     """
     A base representation of an SCM tool for fetching repository information
     and generating diffs.
     """
+
+    def __init__(self):
+
     def get_repository_info(self):
         return None
 
@@ -81,7 +89,7 @@ class RepositoryInfo:
         self.base_path = base_path
         self.supports_changesets = supports_changesets
         self.supports_parent_diffs = supports_parent_diffs
-        debug("repository info: %s" % self)
+        logging.debug("repository info: %s" % self)
 
     def __str__(self):
         return "Path: %s, Base path: %s, Supports changesets: %s" % \
@@ -90,8 +98,8 @@ class RepositoryInfo:
     def set_base_path(self, base_path):
         if not base_path.startswith('/'):
             base_path = '/' + base_path
-        debug("changing repository info base_path from %s to %s" % \
-              (self.base_path, base_path))
+        logging.debug("changing repository info base_path from %s to %s" % \
+                      (self.base_path, base_path))
         self.base_path = base_path
 
     def find_server_repository_info(self, server):
