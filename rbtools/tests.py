@@ -26,8 +26,9 @@ from rbtools.clients.client import RepositoryInfo
 from rbtools.clients.git import GitClient
 from rbtools.clients.mercurial import MercurialClient
 from rbtools.clients.svn import SVNRepositoryInfo
+from rbtools.utils.process import execute
 from rbtools.postreview import ReviewBoardServer
-from rbtools.postreview import execute, load_config_files
+from rbtools.postreview import load_config_files
 
 import rbtools.postreview
 
