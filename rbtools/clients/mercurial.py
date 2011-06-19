@@ -14,8 +14,8 @@ class MercurialClient(SCMClient):
     information and generates compatible diffs.
     """
 
-    def __init__(self):
-        super(MercurialClient, self).__init__()
+    def __init__(self, **kwargs):
+        super(MercurialClient, self).__init__(**kwargs)
 
         self.hgrc = {}
         self._type = 'hg'

@@ -25,8 +25,8 @@ class ClearCaseClient(SCMClient):
     """
     viewtype = None
 
-    def __init__(self):
-        super(ClearCaseClient, self).__init__()
+    def __init__(self, **kwargs):
+        super(ClearCaseClient, self).__init__(**kwargs)
 
     def get_repository_info(self):
         """Returns information on the Clear Case repository.

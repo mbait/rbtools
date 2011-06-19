@@ -12,8 +12,8 @@ class CVSClient(SCMClient):
     A wrapper around the cvs tool that fetches repository
     information and generates compatible diffs.
     """
-    def __init__(self):
-        super(CVSClient, self).__init__()
+    def __init__(self, **kwargs):
+        super(CVSClient, self).__init__(**kwargs)
 
     def get_repository_info(self):
         if not check_install("cvs"):

@@ -16,8 +16,8 @@ class SVNClient(SCMClient):
     information and generates compatible diffs.
     """
 
-    def __init__(self):
-        super(SVNClient, self).__init__()
+    def __init__(self, **kwargs):
+        super(SVNClient, self).__init__(**kwargs)
 
     def get_repository_info(self):
         if not check_install('svn help'):

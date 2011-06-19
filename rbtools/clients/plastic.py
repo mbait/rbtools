@@ -13,8 +13,8 @@ class PlasticClient(SCMClient):
     A wrapper around the cm Plastic tool that fetches repository
     information and generates compatible diffs
     """
-    def __init__(self):
-        super(PlasticClient, self).__init__()
+    def __init__(self, **kwargs):
+        super(PlasticClient, self).__init__(**kwargs)
 
     def get_repository_info(self):
         if not check_install('cm version'):

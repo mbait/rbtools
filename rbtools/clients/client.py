@@ -9,9 +9,9 @@ class SCMClient(object):
     and generating diffs.
     """
 
-    def __init__(self, user_config=None, configs=None, options=None):
+    def __init__(self, user_config=None, configs=[], options=None):
         self._user_config = user_config
-        self._config = configs
+        self._configs = configs
         self._options = options
 
     def get_repository_info(self):

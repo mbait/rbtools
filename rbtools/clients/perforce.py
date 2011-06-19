@@ -17,8 +17,8 @@ class PerforceClient(SCMClient):
     A wrapper around the p4 Perforce tool that fetches repository information
     and generates compatible diffs.
     """
-    def __init__(self):
-        super(PerforceClient, self).__init__()
+    def __init__(self, **kwargs):
+        super(PerforceClient, self).__init__(**kwargs)
 
     def get_repository_info(self):
         if not check_install('p4 help'):

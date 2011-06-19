@@ -14,8 +14,8 @@ class GitClient(SCMClient):
     compatible diffs. This will attempt to generate a diff suitable for the
     remote repository, whether git, SVN or Perforce.
     """
-    def __init__(self):
-        super(GitClient, self).__init__()
+    def __init__(self, **kwargs):
+        super(GitClient, self).__init__(**kwargs)
         # Store the 'correct' way to invoke git, just plain old 'git' by default
         self.git = 'git'
 
