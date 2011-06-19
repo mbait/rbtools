@@ -9,7 +9,8 @@ class SCMClient(object):
     and generating diffs.
     """
 
-    def __init__(self):
+    def __init__(self, options=None):
+        self._options = options
 
     def get_repository_info(self):
         return None
@@ -109,3 +110,7 @@ class RepositoryInfo:
         all other clients, this is a noop.
         """
         return self
+
+    @property
+    def options(self):
+        return self._options

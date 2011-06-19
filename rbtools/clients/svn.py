@@ -26,8 +26,8 @@ class SVNClient(SCMClient):
         # a supplied URI)
         svn_info_params = ["svn", "info"]
 
-        if options.repository_url:
-            svn_info_params.append(options.repository_url)
+        if self._options.repository_url:
+            svn_info_params.append(self._options.repository_url)
 
         data = execute(svn_info_params,
                        ignore_errors=True)
@@ -55,9 +55,9 @@ class SVNClient(SCMClient):
         return SVNRepositoryInfo(path, base_path, m.group(1))
 
     def check_options(self):
-        if (options.repository_url and
-            not options.revision_range and
-            not options.diff_filename):
+        if (self._options.repository_url and
+            not self._options.revision_range and
+            not self._options.diff_filename):
             sys.stderr.write("The --repository-url option requires either the "
                              "--revision-range option or the --diff-filename "
                              "option.\n")
@@ -102,7 +102,7 @@ class SVNClient(SCMClient):
         """
         Performs a diff between 2 revisions of a Subversion repository.
         """
-        if options.repository_url:
+        if self._options.repository_url:
             revisions = revision_range.split(':')
             if len(revisions) < 1:
                 return None
@@ -164,7 +164,7 @@ class SVNClient(SCMClient):
         # svn diff against a repository URL on two revisions appears to
         # handle moved files properly, so only adjust the diff file names
         # if they were created using a working copy.
-        if options.repository_url:
+        if self._options.repository_url:
             return diff_content
 
         result = []
@@ -219,7 +219,7 @@ class SVNClient(SCMClient):
                     # If working with a diff generated outside of a working
                     # copy, then file paths are already absolute, so just
                     # add initial slash.
-                    if options.repository_url:
+                    if self._options.repository_url:
                         path = urllib.unquote(
                             "%s/%s" % (repository_info.base_path, file))
                     else:

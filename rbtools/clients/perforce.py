@@ -116,14 +116,14 @@ class PerforceClient(SCMClient):
         revision information.
         """
         # set the P4 enviroment:
-        if options.p4_client:
-           os.environ['P4CLIENT'] = options.p4_client
+        if self._options.p4_client:
+           os.environ['P4CLIENT'] = self._options.p4_client
 
-        if options.p4_port:
-           os.environ['P4PORT'] = options.p4_port
+        if self._options.p4_port:
+           os.environ['P4PORT'] = self._options.p4_port
 
-        if options.p4_passwd:
-            os.environ['P4PASSWD'] = options.p4_passwd
+        if self._options.p4_passwd:
+            os.environ['P4PASSWD'] = self._options.p4_passwd
 
         changenum = self.get_changenum(args)
         if changenum is None:
@@ -302,9 +302,9 @@ class PerforceClient(SCMClient):
             if v[0] < 2002 or (v[0] == "2002" and v[1] < 2):
                 describeCmd = ["p4"]
 
-                if options.p4_passwd:
+                if self._options.p4_passwd:
                     describeCmd.append("-P")
-                    describeCmd.append(options.p4_passwd)
+                    describeCmd.append(self._options.p4_passwd)
 
                 describeCmd = describeCmd + ["describe", "-s", changenum]
 
@@ -337,9 +337,9 @@ class PerforceClient(SCMClient):
         else:
             describeCmd = ["p4"]
 
-            if options.p4_passwd:
+            if self._options.p4_passwd:
                 describeCmd.append("-P")
-                describeCmd.append(options.p4_passwd)
+                describeCmd.append(self._options.p4_passwd)
 
             describeCmd = describeCmd + ["describe", "-s", changenum]
 

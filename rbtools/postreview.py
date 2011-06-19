@@ -1248,7 +1248,7 @@ def main():
     debug('RBTools %s' % get_version_string())
     debug('Home = %s' % homepath)
 
-    repository_info, tool = get_client()
+    repository_info, tool = get_client(options)
 
     # Verify that options specific to an SCM Client have not been mis-used.
     tool.check_options()

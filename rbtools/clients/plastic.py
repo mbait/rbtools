@@ -199,8 +199,8 @@ class PlasticClient(SCMClient):
         if not branch.startswith("br:"):
             return None
 
-        if not options.branch:
-            options.branch = branch
+        if not self._options.branch:
+            self._options.branch = branch
 
         files = execute(["cm", "fbc", branch, "--format={3} {4}"],
                         split_lines = True)

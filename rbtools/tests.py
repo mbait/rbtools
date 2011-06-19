@@ -66,7 +66,7 @@ class MockHttpUnitTest(unittest.TestCase):
 
     def setUp(self):
         # Save the old http_get and http_post
-        rbtools.postreview.options = OptionsStub()
+        self.options = OptionsStub()
 
         self.saved_http_get = ReviewBoardServer.http_get
         self.saved_http_post = ReviewBoardServer.http_post
@@ -150,12 +150,11 @@ class GitClientTests(unittest.TestCase):
         self.clone_dir = _get_tmpdir()
         os.rmdir(self.clone_dir)
         self._gitcmd(['clone', self.git_dir, self.clone_dir])
-        self.client = GitClient()
+        self.client = GitClient(options=OptionsStub())
         os.chdir(self.orig_dir)
 
         rbtools.postreview.user_config = load_config_files('')
-        rbtools.postreview.options = OptionsStub()
-        rbtools.postreview.options.parent_branch = None
+        self.client.options.parent_branch = None
 
     def tearDown(self):
         os.chdir(self.orig_dir)
@@ -376,7 +375,7 @@ class GitClientTests(unittest.TestCase):
                " \n"
 
         os.chdir(self.clone_dir)
-        rbtools.postreview.options.tracking = 'origin/master'
+        self.client.options.tracking = 'origin/master'
 
         self._gitcmd(['remote', 'add', 'bad', self.git_dir])
         self._gitcmd(['fetch', 'bad'])
@@ -486,7 +485,7 @@ class MercurialClientTests(MercurialTestBase):
         os.rmdir(self.clone_dir)
         self._hgcmd(['clone', self.hg_dir, self.clone_dir])
         os.chdir(self.clone_dir)
-        self.client = MercurialClient()
+        self.client = MercurialClient(options=OptionsStub())
 
         clone_hgrc = open(self.clone_hgrc_path, 'wb')
         clone_hgrc.write(self.CLONE_HGRC % {
@@ -498,8 +497,7 @@ class MercurialClientTests(MercurialTestBase):
 
         self.client.get_repository_info()
         rbtools.postreview.user_config = load_config_files('')
-        rbtools.postreview.options = OptionsStub()
-        rbtools.postreview.options.parent_branch = None
+        self.client.options.parent_branch = None
         os.chdir(self.clone_dir)
 
     @property
@@ -709,12 +707,11 @@ class MercurialSubversionClientTests(MercurialTestBase):
 
     def _spin_up_client(self):
         os.chdir(self.clone_dir)
-        self.client = MercurialClient()
+        self.client = MercurialClient(options=OptionsStub())
 
     def _stub_in_config_and_options(self):
         rbtools.postreview.user_config = load_config_files('')
-        rbtools.postreview.options = OptionsStub()
-        rbtools.postreview.options.parent_branch = None
+        self.client.options.parent_branch = None
 
     def testGetRepositoryInfoSimple(self):
         """Test MercurialClient (+svn) get_repository_info, simple case"""

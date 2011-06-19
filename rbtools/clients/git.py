@@ -71,8 +71,8 @@ class GitClient(SCMClient):
                         self.type = "svn"
 
                         # Get SVN tracking branch
-                        if options.parent_branch:
-                            self.upstream_branch = options.parent_branch
+                        if self._options.parent_branch:
+                            self.upstream_branch = self._options.parent_branch
                         else:
                             data = execute([self.git, "svn", "rebase", "-n"],
                                            ignore_errors=True)
@@ -157,7 +157,7 @@ class GitClient(SCMClient):
 
         Returns a tuple: (upstream_branch, remote_url)
         """
-        upstream_branch = options.tracking or default_upstream_branch or \
+        upstream_branch = self._options.tracking or default_upstream_branch or \
                           'origin/master'
         upstream_remote = upstream_branch.split('/')[0]
         origin_url = execute([self.git, "config", "--get",
@@ -206,7 +206,7 @@ class GitClient(SCMClient):
         Performs a diff across all modified files in the branch, taking into
         account a parent branch.
         """
-        parent_branch = options.parent_branch
+        parent_branch = self._options.parent_branch
 
         self.merge_base = execute([self.git, "merge-base", self.upstream_branch,
                                    self.head_ref]).strip()
@@ -218,12 +218,12 @@ class GitClient(SCMClient):
             diff_lines = self.make_diff(self.merge_base, self.head_ref)
             parent_diff_lines = None
 
-        if options.guess_summary and not options.summary:
-            options.summary = execute([self.git, "log", "--pretty=format:%s",
-                                       "HEAD^.."], ignore_errors=True).strip()
+        if self._options.guess_summary and not self._options.summary:
+            self._options.summary = execute([self.git, "log", "--pretty=format:%s",
+                                            "HEAD^.."], ignore_errors=True).strip()
 
-        if options.guess_description and not options.description:
-            options.description = execute(
+        if self._options.guess_description and not self._options.description:
+            self._options.description = execute(
                 [self.git, "log", "--pretty=format:%s%n%n%b",
                  (parent_branch or self.merge_base) + ".."],
                 ignore_errors=True).strip()
@@ -325,13 +325,13 @@ class GitClient(SCMClient):
             if not pdiff_required:
                 parent_diff_lines = self.make_diff(self.merge_base, revision_range)
 
-            if options.guess_summary and not options.summary:
-                options.summary = execute(
+            if self._options.guess_summary and not self._options.summary:
+                self._options.summary = execute(
                     [self.git, "log", "--pretty=format:%s", revision_range + ".."],
                     ignore_errors=True).strip()
 
-            if options.guess_description and not options.description:
-                options.description = execute(
+            if self._options.guess_description and not self._options.description:
+                self._options.description = execute(
                     [self.git, "log", "--pretty=format:%s%n%n%b", revision_range + ".."],
                     ignore_errors=True).strip()
 
@@ -347,13 +347,13 @@ class GitClient(SCMClient):
             if not pdiff_required:
                 parent_diff_lines = self.make_diff(self.merge_base, r1)
 
-            if options.guess_summary and not options.summary:
-                options.summary = execute(
+            if self._options.guess_summary and not self._options.summary:
+                self._options.summary = execute(
                     [self.git, "log", "--pretty=format:%s", "%s..%s" % (r1, r2)],
                     ignore_errors=True).strip()
 
-            if options.guess_description and not options.description:
-                options.description = execute(
+            if self._options.guess_description and not self._options.description:
+                self._options.description = execute(
                     [self.git, "log", "--pretty=format:%s%n%n%b", "%s..%s" % (r1, r2)],
                     ignore_errors=True).strip()
 

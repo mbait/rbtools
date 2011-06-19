@@ -154,14 +154,14 @@ class MercurialClient(SCMClient):
         parent = execute(['hg', 'parent', '--svn', '--template',
                           '{node}\n']).strip()
 
-        if options.parent_branch:
-            parent = options.parent_branch
+        if self._options.parent_branch:
+            parent = self._options.parent_branch
 
-        if options.guess_summary and not options.summary:
-            options.summary = self.extract_summary(".")
+        if self._options.guess_summary and not self._options.summary:
+            self._options.summary = self.extract_summary(".")
 
-        if options.guess_description and not options.description:
-            options.description = self.extract_description(parent, ".")
+        if self._options.guess_description and not self._options.description:
+            self._options.description = self.extract_description(parent, ".")
 
         return (execute(["hg", "diff", "--svn", '-r%s:.' % parent]), None)
 
@@ -196,8 +196,8 @@ class MercurialClient(SCMClient):
 
         remote = self._remote_path[0]
 
-        if not remote and options.parent_branch:
-            remote = options.parent_branch
+        if not remote and self._options.parent_branch:
+            remote = self._options.parent_branch
 
         current_branch = execute(['hg', 'branch'], env=self._hg_env).strip()
 
@@ -207,11 +207,11 @@ class MercurialClient(SCMClient):
         top_rev, bottom_rev = \
             self._get_top_and_bottom_outgoing_revs(outgoing_changesets)
 
-        if options.guess_summary and not options.summary:
-            options.summary = self.extract_summary(top_rev).rstrip("\n")
+        if self._options.guess_summary and not self._options.summary:
+            self._options.summary = self.extract_summary(top_rev).rstrip("\n")
 
-        if options.guess_description and not options.description:
-            options.description = self.extract_description(bottom_rev, top_rev)
+        if self._options.guess_description and not self._options.description:
+            self._options.description = self.extract_description(bottom_rev, top_rev)
 
         full_command = ['hg', 'diff', '-r', str(bottom_rev), '-r',
                         str(top_rev)] + files
@@ -267,11 +267,11 @@ class MercurialClient(SCMClient):
 
         r1, r2 = revision_range.split(':')
 
-        if options.guess_summary and not options.summary:
-            options.summary = self.extract_summary(r2)
+        if self._options.guess_summary and not self._options.summary:
+            self._options.summary = self.extract_summary(r2)
 
-        if options.guess_description and not options.description:
-            options.description = self.extract_description(r1, r2)
+        if self._options.guess_description and not self._options.description:
+            self._options.description = self.extract_description(r1, r2)
 
         return (execute(["hg", "diff", "-r", r1, "-r", r2],
                         env=self._hg_env), None)
