@@ -80,7 +80,7 @@ class SCMClient(object):
         return None
 
 
-class RepositoryInfo:
+class RepositoryInfo(object):
     """
     A representation of a source code repository.
     """

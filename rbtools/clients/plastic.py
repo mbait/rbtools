@@ -16,7 +16,6 @@ class PlasticClient(SCMClient):
     def __init__(self):
         super(PlasticClient, self).__init__()
 
-
     def get_repository_info(self):
         if not check_install('cm version'):
             return None

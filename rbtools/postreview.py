@@ -12,6 +12,7 @@ from pkg_resources import parse_version
 from urlparse import urljoin, urlparse
 
 from rbtools.clients import scan_usable_client
+from rbtools.api.errors import APIError
 from rbtools.clients.perforce import PerforceClient
 from rbtools.clients.plastic import PlasticClient
 from rbtools.utils.files import walk_parents
@@ -25,7 +26,6 @@ except ImportError:
     from simplejson import loads as json_loads
 
 from rbtools import get_package_version, get_version_string
-from rbtools.api.errors import APIError
 
 
 ###

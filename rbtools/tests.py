@@ -21,13 +21,13 @@ except ImportError:
 
 import nose
 
-from rbtools.postreview import execute, load_config_files
-from rbtools.postreview import APIError, ReviewBoardServer
-
+from rbtools.api.errors import APIError
 from rbtools.clients.client import RepositoryInfo
 from rbtools.clients.git import GitClient
 from rbtools.clients.mercurial import MercurialClient
 from rbtools.clients.svn import SVNRepositoryInfo
+from rbtools.postreview import ReviewBoardServer
+from rbtools.postreview import execute, load_config_files
 
 import rbtools.postreview
 
