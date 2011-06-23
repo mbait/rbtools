@@ -69,6 +69,13 @@ class UtilitiesTest(unittest.TestCase):
         self.assertEqual(os.stat(fname).st_uid, os.geteuid())
         self.assertTrue(os.access(fname, os.R_OK | os.W_OK))
 
+    def test_execute(self):
+        util = RBUtilities()
+
+        self.assertRegexpMatches(util.execute([sys.executable, '--version']),
+                                 '^[Pp][Yy][Tt][Hh][Oo][Nn]\s+(\d+\.?)+$')
+
+
 FAKE_CONFIG = """\
 [main]
 
