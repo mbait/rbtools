@@ -75,6 +75,13 @@ class UtilitiesTest(unittest.TestCase):
         self.assertRegexpMatches(util.execute([sys.executable, '--version']),
                                  '^[Pp][Yy][Tt][Hh][Oo][Nn]\s+(\d+\.?)+$')
 
+    def test_die(self):
+        util = RBUtilities()
+
+        with self.assertRaises(SystemExit) as rc:
+            util.die()
+        self.assertEqual(rc.exception.code, 1)
+
 
 FAKE_CONFIG = """\
 [main]
