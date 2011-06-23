@@ -1,10 +1,8 @@
 import getpass
 import logging
 import os
-import socket
 import subprocess
 import sys
-import tempfile
 
 from tempfile import mkstemp
 
@@ -41,7 +39,7 @@ class RBUtilities(object):
         (for instance, 'svn help' or 'git --version').
         """
         try:
-            p = subprocess.Popen(command.split(' '),
+            subprocess.Popen(command.split(' '),
                                  stdin=subprocess.PIPE,
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE)
