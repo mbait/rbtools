@@ -61,6 +61,13 @@ class UtilitiesTest(unittest.TestCase):
         self.assertTrue(util.check_install(sys.executable + ' --version'))
         self.assertFalse(util.check_install('3F2504E0-4F89-11D3-9A0C-0305E82C3301'))
 
+    def test_make_tempfile(self):
+        util = RBUtilities()
+        fname = util.make_tempfile()
+
+        self.assertTrue(os.path.isfile(fname))
+        self.assertEqual(os.stat(fname).st_uid, os.geteuid())
+        self.assertTrue(os.access(fname, os.R_OK | os.W_OK))
 
 FAKE_CONFIG = """\
 [main]
