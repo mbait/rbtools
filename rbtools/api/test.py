@@ -6,19 +6,19 @@ from tempfile import mkdtemp
 
 from rbtools.api.settings import Settings, CONFIG_NAME
 from rbtools.api.utilities import  RBUtilities
-
-TEST_SERVER = 'localhost'
-TEST_USER = 'tester'
+from rbtools.testutils import TEST_COOKIE_FILE, TEST_SERVER, TEST_USER
 
 class SettingsTest(unittest.TestCase):
 
     def set_fake_settings(self, settings):
         settings.reviewboard_url =  TEST_SERVER
         settings.user = TEST_USER
+        settings.cookie_file = TEST_COOKIE_FILE
 
     def check_fake_settings(self, settings):
-        self.assertTrue(settings.reviewboard_url == TEST_SERVER)
-        self.assertTrue(settings.user == TEST_USER)
+        self.assertEqual(settings.reviewboard_url, TEST_SERVER)
+        self.assertEqual(settings.user, TEST_USER)
+        self.assertEqual(settings.cookie_file, TEST_COOKIE_FILE)
 
     def test_get_settings(self):
         os.chdir(mkdtemp())
@@ -45,7 +45,7 @@ class SettingsTest(unittest.TestCase):
         settings.load()
         self.check_fake_settings(settings)
 
-    def test_attrs(self):
+    def test_set_attr(self):
         """Settings class is know to overwrite __getattr__ and __setattr__"""
         """this test checks that we still can get/set regular attributes"""
         settings = Settings()
@@ -53,13 +53,18 @@ class SettingsTest(unittest.TestCase):
         settings.some_non_config_value = test_value
         self.assertEquals(settings.some_non_config_value, test_value)
 
+    def test_get_attr(self):
+        settings = Settings()
+        with self.assertRaises(AttributeError):
+            settings.another_fake_attribute
 
 class UtilitiesTest(unittest.TestCase):
 
     def test_check_install(self):
         util = RBUtilities()
         self.assertTrue(util.check_install(sys.executable + ' --version'))
-        self.assertFalse(util.check_install('3F2504E0-4F89-11D3-9A0C-0305E82C3301'))
+        self.assertFalse(util.check_install(
+                         '3F2504E0-4F89-11D3-9A0C-0305E82C3301'))
 
     def test_make_tempfile(self):
         util = RBUtilities()
@@ -89,4 +94,5 @@ FAKE_CONFIG = """\
 ReVIeWBoard_UrL = %s
 
 USer = %s
-""" % (TEST_SERVER, TEST_USER)
+cookie_file =%s
+""" % (TEST_SERVER, TEST_USER, TEST_COOKIE_FILE)

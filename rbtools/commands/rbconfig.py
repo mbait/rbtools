@@ -13,19 +13,20 @@ def main():
 
     opts, args = p.parse_args()
     values = {
-            'user_name' : opts.user,
-            'server_url' : opts.server_url,
-            'cookie' : opts.cookie
-            }
+        'user' : opts.user,
+        'reviewboard_url' : opts.server_url,
+        'cookie_file' : opts.cookie
+    }
     # Filter out the values that are None.
-    valid = [(name, values[name]) for name in values if values[name]]
+    valid = [(name, values[name]) for name in values if values[name] != None]
 
     settings = Settings()
     if valid:
         for name, value in valid:
-            settings.add_setting(name, value)
+            print "%s : %s" % (name, value)
+            setattr(settings, name, value)
 
-        settings.save()
+        settings.save_local()
     else:
         p.print_usage()
 
