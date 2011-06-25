@@ -17,14 +17,14 @@ def main():
             'server_url' : opts.server_url,
             'cookie' : opts.cookie
             }
-    # filter out those values are None
-    valid = [ (name, values[name]) for name in values if values[name] ]
+    # Filter out the values that are None.
+    valid = [(name, values[name]) for name in values if values[name]]
 
     settings = Settings()
-    if len(valid):
-        for opt in valid:
-            name, value = opt
+    if valid:
+        for name, value in valid:
             settings.add_setting(name, value)
+
         settings.save()
     else:
         p.print_usage()
