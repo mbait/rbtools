@@ -8,7 +8,7 @@ def main():
 
     p.add_option('-u', '--user', dest='user', help='user name')
     p.add_option('-U', '--url', dest='server_url',
-                 help='URL of ReviewBoard server')
+                 help='ReviewBoard server URL')
     p.add_option('-c', '--cookie-file', action='store', dest='cookie')
 
     opts, args = p.parse_args()
