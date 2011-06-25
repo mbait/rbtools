@@ -72,4 +72,5 @@ class Settings(object):
                 if not cfg.has_section(sec):
                     cfg.add_section(sec)
                 cfg.set(sec, name, self.config_cache[full_name])
+
         cfg.write(open(file_name, 'w'))
