@@ -11,11 +11,11 @@ MAIN_OPTION_NAME = 'main'
 SEPARATOR = '_'
 
 OPTIONS = [
-            (MAIN_OPTION_NAME, 'reviewboard_url'),
-            (MAIN_OPTION_NAME, 'user'),
-            (MAIN_OPTION_NAME, 'cookie_file'),
-            (MAIN_OPTION_NAME, 'api_uri'),
-          ]
+    (MAIN_OPTION_NAME, 'reviewboard_url'),
+    (MAIN_OPTION_NAME, 'user'),
+    (MAIN_OPTION_NAME, 'cookie_file'),
+    (MAIN_OPTION_NAME, 'api_uri'),
+]
 ATTRIBUTES = [SEPARATOR.join(opt) for opt in OPTIONS]
 
 
