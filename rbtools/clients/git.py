@@ -2,7 +2,7 @@ import os
 import re
 import sys
 
-from rbtools.clients.client import SCMClient, RepositoryInfo
+from rbtools.clients import SCMClient, RepositoryInfo
 from rbtools.clients.svn import SVNClient, SVNRepositoryInfo
 from rbtools.utils.checks import check_install
 from rbtools.utils.process import die, execute
