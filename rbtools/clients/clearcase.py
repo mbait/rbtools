@@ -329,7 +329,8 @@ class ClearCaseClient(SCMClient):
             elif cpath.exists(new_file):
                 dl = self.diff_files(old_file, new_file)
             else:
-                logging.error("File %s does not exist or access is denied." % new_file)
+                logging.error("File %s does not exist or access is denied."
+                              % new_file)
                 continue
 
             if dl:

@@ -4,6 +4,7 @@ import sys
 
 from rbtools.utils.process import die, execute
 
+
 GNU_DIFF_WIN32_URL = 'http://gnuwin32.sourceforge.net/packages/diffutils.htm'
 
 
