@@ -3,7 +3,7 @@ import os
 import subprocess
 import sys
 
-from rbtools.utils.files import tempfiles
+from rbtools.utils.files import cleanup_tempfiles
 
 
 def die(msg=None):
@@ -11,11 +11,7 @@ def die(msg=None):
     Cleanly exits the program with an error message. Erases all remaining
     temporary files.
     """
-    for tmpfile in tempfiles:
-        try:
-            os.unlink(tmpfile)
-        except:
-            pass
+    cleanup_tempfiles()
 
     if msg:
         print msg

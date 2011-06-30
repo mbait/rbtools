@@ -5,6 +5,14 @@ import tempfile
 tempfiles = []
 
 
+def cleanup_tempfiles():
+    for tmpfile in tempfiles:
+        try:
+            os.unlink(tmpfile)
+        except:
+            pass
+
+
 def make_tempfile(content=None):
     """
     Creates a temporary file and returns the path. The path is stored
