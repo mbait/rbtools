@@ -328,7 +328,7 @@ class PerforceClient(SCMClient):
         # reviewing.
         cl_is_pending = False
 
-        logging.debug("Generating diff for changenum %s" % changenum)
+        logging.info("Generating diff for changenum %s" % changenum)
 
         description = []
 

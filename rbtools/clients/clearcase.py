@@ -329,7 +329,7 @@ class ClearCaseClient(SCMClient):
             elif cpath.exists(new_file):
                 dl = self.diff_files(old_file, new_file)
             else:
-                logging.debug("File %s does not exist or access is denied." % new_file)
+                logging.error("File %s does not exist or access is denied." % new_file)
                 continue
 
             if dl:
@@ -361,7 +361,7 @@ class ClearCaseRepositoryInfo(RepositoryInfo):
 
         # Find VOB's family uuid based on VOB's tag
         uuid = self._get_vobs_uuid(self.vobstag)
-        logging.debug("Repositorie's %s uuid is %r" % (self.vobstag, uuid))
+        logging.debug("Repository's %s uuid is %r" % (self.vobstag, uuid))
 
         repositories = server.get_repositories()
         for repository in repositories:
@@ -374,7 +374,7 @@ class ClearCaseRepositoryInfo(RepositoryInfo):
                 continue
 
             logging.debug('Matching repository uuid:%s with path:%s' %(uuid,
-                  info['repopath']))
+                          info['repopath']))
             return ClearCaseRepositoryInfo(info['repopath'],
                     info['repopath'], uuid)
 

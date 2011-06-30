@@ -3,14 +3,15 @@ import os
 import subprocess
 import sys
 
-import rbtools.utils.files
+from rbtools.utils.files import tempfiles
+
 
 def die(msg=None):
     """
     Cleanly exits the program with an error message. Erases all remaining
     temporary files.
     """
-    for tmpfile in rbtools.utils.files.tempfiles:
+    for tmpfile in tempfiles:
         try:
             os.unlink(tmpfile)
         except:

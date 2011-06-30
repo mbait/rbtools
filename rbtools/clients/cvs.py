@@ -40,7 +40,7 @@ class CVSClient(SCMClient):
                 repository_path = repository_path.replace('%s:' % host,
                                                           '%s:' % canon)
             except socket.error, msg:
-                logging.debug("failed to get fqdn for %s, msg=%s"
+                logging.error("failed to get fqdn for %s, msg=%s"
                               % (host, msg))
 
         return RepositoryInfo(path=repository_path)
