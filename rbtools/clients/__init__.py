@@ -1,25 +1,11 @@
 import logging
 import sys
 
-from rbtools.clients.clearcase import ClearCaseClient
-from rbtools.clients.cvs import CVSClient
-from rbtools.clients.git import GitClient
-from rbtools.clients.mercurial import MercurialClient
-from rbtools.clients.perforce import PerforceClient
-from rbtools.clients.plastic import PlasticClient
-from rbtools.clients.svn import SVNClient
 from rbtools.utils.process import die
 
 
-SCMCLIENTS = (
-    CVSClient(),
-    ClearCaseClient(),
-    GitClient(),
-    MercurialClient(),
-    PerforceClient(),
-    PlasticClient(),
-    SVNClient(),
-)
+# The clients are lazy loaded via load_scmclients()
+SCMCLIENTS = None
 
 
 class SCMClient(object):
@@ -153,9 +139,34 @@ class RepositoryInfo(object):
         return self
 
 
+def load_scmclients():
+    from rbtools.clients.clearcase import ClearCaseClient
+    from rbtools.clients.cvs import CVSClient
+    from rbtools.clients.git import GitClient
+    from rbtools.clients.mercurial import MercurialClient
+    from rbtools.clients.perforce import PerforceClient
+    from rbtools.clients.plastic import PlasticClient
+    from rbtools.clients.svn import SVNClient
+
+    SCMCLIENTS = [
+        CVSClient(),
+        ClearCaseClient(),
+        GitClient(),
+        MercurialClient(),
+        PerforceClient(),
+        PlasticClient(),
+        SVNClient(),
+    ]
+
+
 def scan_usable_client(options):
+    from rbtools.clients.perforce import PerforceClient
+
     repository_info = None
     tool = None
+
+    if not SCMCLIENTS:
+        load_scmclients()
 
     # Try to find the SCM Client we're going to be working with.
     for tool in SCMCLIENTS:
