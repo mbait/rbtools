@@ -63,8 +63,7 @@ class UtilitiesTest(unittest.TestCase):
     def test_check_install(self):
         util = RBUtilities()
         self.assertTrue(util.check_install(sys.executable + ' --version'))
-        self.assertFalse(util.check_install(
-                         '3F2504E0-4F89-11D3-9A0C-0305E82C3301'))
+        self.assertFalse(util.check_install(self.gen_uuid()))
 
     def test_make_tempfile(self):
         util = RBUtilities()
@@ -78,7 +77,7 @@ class UtilitiesTest(unittest.TestCase):
         util = RBUtilities()
 
         self.assertRegexpMatches(util.execute([sys.executable, '--version']),
-                                 '^[Pp][Yy][Tt][Hh][Oo][Nn]\s+(\d+\.?)+$')
+                                 '%d.%d.%d' % sys.version_info[:3])
 
     def test_die(self):
         util = RBUtilities()
