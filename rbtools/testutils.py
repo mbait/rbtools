@@ -20,8 +20,8 @@ class RBTestBase(unittest.TestCase):
     def get_user_home(self):
         return os.environ['HOME']
 
-    def reset_cl_args(values=[]):
-        sys.argv = []
+    def reset_cl_args(self, values=[]):
+        sys.argv = values
 
     def set_user_home(self, path):
         os.environ['HOME'] = path
