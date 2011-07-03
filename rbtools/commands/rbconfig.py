@@ -10,7 +10,7 @@ def main():
     p.add_option('-U', '--url', dest='server_url',
                  help='ReviewBoard server URL')
     p.add_option('-c', '--cookie-file', action='store', dest='cookie')
-    p.add_option('--global', action='store', dest='use_global')
+    p.add_option('--global', action='store_true', dest='is_global')
 
     opts, args = p.parse_args()
     values = {
@@ -27,7 +27,7 @@ def main():
             print "%s : %s" % (name, value)
             setattr(settings, name, value)
 
-        if opts.use_global:
+        if opts.is_global:
             settings.save_global()
         else:
             settings.save_local()
