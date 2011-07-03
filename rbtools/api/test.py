@@ -15,9 +15,6 @@ SETTINGS_ATTRS = [
 
 class SettingsTest(RBTestBase):
 
-    def setUp(self):
-        self.set_user_home_tmp()
-
     def check_fake_settings(self, settings, samples):
         for name in samples:
             self.assertEqual(getattr(settings, name), samples[name])
