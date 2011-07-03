@@ -8,9 +8,11 @@ def main():
 
     p.add_option('-u', '--user', dest='user', help='user name')
     p.add_option('-U', '--url', dest='server_url',
-                 help='ReviewBoard server URL')
-    p.add_option('-c', '--cookie-file', action='store', dest='cookie')
-    p.add_option('--global', action='store_true', dest='is_global')
+                 help='Review Board server URL')
+    p.add_option('-c', '--cookie-file', action='store', dest='cookie',
+                 help='a file to store user session cookies')
+    p.add_option('--global', action='store_true', dest='is_global',
+                 help='use global config file')
 
     opts, args = p.parse_args()
     values = {
