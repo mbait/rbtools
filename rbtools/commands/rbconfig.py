@@ -35,7 +35,7 @@ def main():
         else:
             settings.save_local()
     else:
-        p.print_usage()
+        p.print_help()
 
 
 if __name__ == "__main__":
