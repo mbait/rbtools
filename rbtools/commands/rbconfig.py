@@ -21,7 +21,8 @@ def main():
         'cookie_file' : opts.cookie
     }
     # Filter out the values that are None.
-    valid = [(name, values[name]) for name in values if values[name] != None]
+    valid = [(name, values[name])
+             for name in values if values[name] is not None]
 
     settings = Settings()
     if valid:
