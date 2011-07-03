@@ -3,13 +3,32 @@ import sys
 
 from rbtools.api.settings import Settings
 from rbtools.api.utilities import  RBUtilities
-from rbtools.testutils import RBTestBase, SettingsTestBase
+from rbtools.testutils import RBTestBase
 
 
-class SettingsTest(SettingsTestBase):
+SETTINGS_ATTRS = [
+    'reviewboard_url',
+    'user',
+    'cookie_file'
+]
+
+
+class SettingsTest(RBTestBase):
 
     def setUp(self):
         self.set_user_home_tmp()
+
+    def check_fake_settings(self, settings, samples):
+        for name in samples:
+            self.assertEqual(getattr(settings, name), samples[name])
+
+    def set_fake_settings(self, settings, attrs=SETTINGS_ATTRS):
+        fake_data = {}
+        for name in attrs:
+            fake_data[name] = self.gen_uuid()
+            setattr(settings, name, fake_data[name])
+
+        return fake_data
 
     def test_set_settings(self):
         settings = Settings()

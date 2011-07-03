@@ -1,15 +1,9 @@
 import os
+import sys
 import unittest
 import uuid
 
 from tempfile import mkdtemp
-
-
-SETTINGS_ATTRS = [
-    'reviewboard_url',
-    'user',
-    'cookie_file'
-]
 
 
 class RBTestBase(unittest.TestCase):
@@ -23,23 +17,11 @@ class RBTestBase(unittest.TestCase):
     def get_user_home(self):
         return os.environ['HOME']
 
+    def reset_cl_args(values=[]):
+        sys.argv = []
+
     def set_user_home(self, path):
         os.environ['HOME'] = path
 
     def set_user_home_tmp(self):
         self.set_user_home(mkdtemp())
-
-
-class SettingsTestBase(RBTestBase):
-
-    def check_fake_settings(self, settings, samples):
-        for name in samples:
-            self.assertEqual(getattr(settings, name), samples[name])
-
-    def set_fake_settings(self, settings, attrs=SETTINGS_ATTRS):
-        fake_data = {}
-        for name in attrs:
-            fake_data[name] = self.gen_uuid()
-            setattr(settings, name, fake_data[name])
-
-        return fake_data
