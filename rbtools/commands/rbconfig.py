@@ -27,7 +27,7 @@ def main():
     settings = Settings()
     if valid:
         for name, value in valid:
-            print "%s : %s" % (name, value)
+            print "Set %s : %s" % (name, value)
             setattr(settings, name, value)
 
         if opts.is_global:
