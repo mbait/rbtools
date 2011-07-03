@@ -8,6 +8,9 @@ from tempfile import mkdtemp
 
 class RBTestBase(unittest.TestCase):
 
+    def setUp(self):
+        self.set_user_home_tmp()
+
     def chdir_tmp(self, dir=None):
         return os.chdir(mkdtemp(dir=dir))
 
