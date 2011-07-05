@@ -32,6 +32,11 @@ class Client(object):
         """
         return None
 
+    def get_prop(self, name):
+        """If particular SCM support internal properties return the value
+        of property <name>, otherwise None"""
+        return None
+
     def diff(self, args):
         """Returns the generated diff and optional parent diff for this
         repository.

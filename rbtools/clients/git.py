@@ -5,6 +5,9 @@ from rbtools.clients.client import Client, Repository
 from rbtools.clients.svn import SVNClient, SVNRepository
 
 
+GIT_CMD = 'git'
+
+
 class GitClient(Client):
     """A client for Git repositories"""
 
@@ -23,8 +26,7 @@ class GitClient(Client):
         if not self.util.check_install('git --version'):
             return None
 
-        git_dir = self.util.execute(["git", "rev-parse", "--git-dir"],
-                          ignore_errors=True).strip()
+        git_dir = self.run_command(['rev-parse --git-dir']).strip()
 
         if git_dir.startswith("fatal:") or not os.path.isdir(git_dir):
             return None
@@ -33,12 +35,11 @@ class GitClient(Client):
         # of a work-tree would result in broken diffs on the server
         os.chdir(os.path.dirname(os.path.abspath(git_dir)))
 
-        self.head_ref = self.util.execute(['git', 'symbolic-ref', \
-                                            '-q', 'HEAD']).strip()
+        self.head_ref = self.run_command(['symbolic-ref -q HEAD']).strip()
 
         # We know we have something we can work with. Let's find out
         # what it is. We'll try SVN first.
-        data = self.util.execute(["git", "svn", "info"], ignore_errors=True)
+        data = self.run_command(['svn info']);
 
         m = re.search(r'^Repository Root: (.+)$', data, re.M)
 
@@ -64,12 +65,9 @@ class GitClient(Client):
             # 'git svn info'. If we fail because of an older git install,
             # here, figure out what version of git is installed and give
             # the user a hint about what to do next.
-            version = self.util.execute(["git", "svn", "--version"], \
-                                        ignore_errors=True)
             version_parts = re.search('version (\d+)\.(\d+)\.(\d+)',
-                                      version)
-            svn_remote = self.util.execute(["git", "config", "--get",
-                                  "svn-remote.svn.url"], ignore_errors=True)
+                                      self.run_command(['svn --version']))
+            svn_remote = self.get_property('svn-remote.svn.url')
 
             if (version_parts and
                 not self.is_valid_version((int(version_parts.group(1)),
@@ -86,14 +84,9 @@ class GitClient(Client):
         # Nope, it's git then.
         # Check for a tracking branch and determine merge-base
         short_head = self._strip_heads_prefix(self.head_ref)
-        merge = self.util.execute(['git', 'config', '--get',
-                         'branch.%s.merge' % short_head],
-                        ignore_errors=True).strip()
-        remote = self.util.execute(['git', 'config', '--get',
-                          'branch.%s.remote' % short_head],
-                         ignore_errors=True).strip()
-
+        merge = self.get_property('branch.%s.merge' % short_head)
         merge = self._strip_heads_prefix(merge)
+        remote = self.get_property('branch.%s.remote' % short_head)
         self.upstream_branch = ''
 
         if remote and remote != '.' and merge:
@@ -122,11 +115,14 @@ class GitClient(Client):
         upstream_branch = default_upstream_branch or \
                           'origin/master'
         upstream_remote = upstream_branch.split('/')[0]
-        origin_url = self.util.execute(["git", "config", \
-                                    "remote.%s.url" % upstream_remote], \
-                                    ignore_errors=ignore_errors)
+        origin_url = self.get_property("remote.%s.url" % upstream_remote,
+                                       ignore_errors)
 
         return (upstream_branch, origin_url.rstrip('\n'))
+
+    def get_property(self, name, ignore_errors=True):
+        return self.run_command(['config --get', name],
+                                ignore_errors=ignore_errors).strip()
 
     def is_valid_version(self, actual, expected):
         """
@@ -139,6 +135,10 @@ class GitClient(Client):
                (actual[0] == expected[0] and actual[1] > expected[1]) or \
                (actual[0] == expected[0] and actual[1] == expected[1] and \
                 actual[2] >= expected[2])
+
+    def run_command(self, params, **kwargs):
+        args = [GIT_CMD].extend(params)
+        return self.util.execute(args, **kwargs)
 
     def scan_for_server(self, repository_info):
         """Scans for a git server
@@ -154,8 +154,7 @@ class GitClient(Client):
             return server_url
 
         # TODO: Maybe support a server per remote later? Is that useful?
-        self.url = self.util.execute(["git", "config", "--get", \
-                            "reviewboard.url"], ignore_errors=True).strip()
+        self.url = self.get_property('reviewboard.url')
 
         if self.url:
             return self.url
@@ -178,8 +177,8 @@ class GitClient(Client):
         account a parent branch.
         """
 
-        self.merge_base = self.util.execute(["git", "merge-base", \
-                                self.upstream_branch, self.head_ref]).strip()
+        self.merge_base = self.run_command(['merge-base', self.upstream_branch,
+                                           self.head_ref])
 
         diff_lines = self.make_diff(self.merge_base, self.head_ref)
         parent_diff_lines = None
@@ -193,13 +192,12 @@ class GitClient(Client):
         rev_range = "%s..%s" % (ancestor, commit)
 
         if self.type == "svn":
-            diff_lines = self.util.execute(["git", "diff", "--no-color", \
-                                        "--no-prefix", "-r", "-u", \
-                                        rev_range], split_lines=True)
+            diff_lines = self.run_command(['diff --no-color --no-prefix -r -u',
+                                          rev_range], split_lines=True)
             return self.make_svn_diff(ancestor, diff_lines)
         elif self.type == "git":
-            return self.util.execute(["git", "diff", "--no-color", \
-                                    "--full-index", rev_range])
+            return self.run_command(['diff --no-color --full-index',
+                                    rev_range])
 
         return None
 
@@ -210,8 +208,7 @@ class GitClient(Client):
         svn diff would generate. This is needed so the SVNTool in Review
         Board can properly parse this diff.
         """
-        rev = self.util.execute(["git", "svn", "find-rev", \
-                                    parent_branch]).strip()
+        rev = self.run_command(['svn find-rev', parent_branch]).strip()
 
         if not rev:
             return None
@@ -280,7 +277,7 @@ class GitClient(Client):
         success = False
 
         #test the patch using -check
-        output = self.util.execute(['git', 'apply', '--check', str(patch_file)])
+        output = self.run_command(['apply --check'], str(patch_file))
 
         if output:
             self.util.raise_error('Unable to apply patch.  Fix the errors '
@@ -288,7 +285,7 @@ class GitClient(Client):
             return False        
 
         #apply the patch using git-apply
-        self.util.execute(['git', 'apply', str(patch_file)])
+        self.run_command(['apply', str(patch_file)])
         success = True
 
         #commit changes
