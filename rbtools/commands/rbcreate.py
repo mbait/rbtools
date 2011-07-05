@@ -1,6 +1,5 @@
-import os
 import sys
-import urllib2
+import optparse
 
 from rbtools.api.resource import Resource, RootResource
 from rbtools.api.resource import RepositoryList, ReviewRequestDraft
@@ -10,8 +9,17 @@ from rbtools.clients.getclient import get_client
 
 
 def main():
-    valid = True
+    parser = optparse.OptionParser(prog='rb create')
+    parser.add_option('-s', '--summary', action='store', dest='summary',
+                      help='summary of the review')
+    parser.add_option('-d', '--description', action='store', dest='desc',
+                      help='description of the review')
 
+    opts, args = parser.parse_args()
+    settings = Settings()
+    settings.load()
+
+    """
     if len(sys.argv) > 0:
         settings = Settings()
         settings.load()
@@ -75,7 +83,7 @@ def main():
 
     if not valid:
         print "usage: rb create"
-
+    """
 
 if __name__ == '__main__':
     main()
