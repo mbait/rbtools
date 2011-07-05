@@ -1,24 +1,33 @@
-import os
+import optparse
 import re
 import sys
 
-from rbtools.api.resource import Resource, RootResource, ReviewRequest
+from rbtools.api.resource import RootResource
 from rbtools.api.serverinterface import ServerInterface
 from rbtools.api.settings import Settings
 
 
+GROUP = 'groups'
 INFO = 'info'
-USER = 'usr'
-ROOT = 'root'
 REPOSITORY = 'repo'
-SESSION = 'sess'
-GROUP = 'grp'
-REVIEW_REQUEST = 'rr'
+REVIEW_REQUEST = 'requests'
+ROOT = 'root'
+SESSION = 'session'
+USER = 'users'
 RESOURCE_NAMES = [INFO, USER, ROOT, REPOSITORY, SESSION, GROUP, REVIEW_REQUEST]
 
 
 def main():
-    valid = False
+    resources_str = reduce(lambda x, y: '%s|%s' % (x, y), RESOURCE_NAMES)
+    parser = optparse.OptionParser(prog='rb info',
+                                   usage='%%prog [%s] [<id>]' % resources_str)
+
+    parser.add_option('-r', '--review-request-id', action='store', dest='id',
+                      help='review request identifier')
+
+    parser.print_help()
+    
+    """
     resource_map = {}
     resource_map[INFO] = 'info'
     resource_map[USER] = 'users'
@@ -31,8 +40,9 @@ def main():
     if len(sys.argv) > 1:
         settings = Settings()
         settings.load()
-        cookie = settings.get_cookie_file()
-        server_url = settings.get_server_url()
+        cookie = settings.cookie_file
+        server_url = settings.reviewboard_url
+        print server_url
 
         if re.match('-', sys.argv[1]):
             valid = True
@@ -54,6 +64,7 @@ def main():
         print "resource_names:"
         for n in RESOURCE_NAMES:
             print "     %s" % n
+    """
 
 
 if __name__ == '__main__':
