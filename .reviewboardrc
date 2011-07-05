@@ -1,2 +1,2 @@
 [main]
-REVIEWBOARD_URL = "http://reviews.reviewboard.org"
+REVIEWBOARD_URL = http://reviews.reviewboard.org
