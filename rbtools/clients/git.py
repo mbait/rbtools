@@ -178,7 +178,7 @@ class GitClient(Client):
         """
 
         self.merge_base = self.run_command(['merge-base', self.upstream_branch,
-                                           self.head_ref])
+                                           self.head_ref]).strip()
 
         diff_lines = self.make_diff(self.merge_base, self.head_ref)
         parent_diff_lines = None
