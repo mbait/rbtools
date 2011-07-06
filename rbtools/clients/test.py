@@ -204,8 +204,6 @@ class GitClientTest(RBTestBase):
 
     def test_diff_local_tracking(self):
         """Test GitClient diff with a local tracking branch"""
-        pass
-        """
         diff = "diff --git a/foo.txt b/foo.txt\n" \
                "index 634b3e8ff85bada6f928841a9f2c505560840b3a..e619c1387f5feb91f0ca83194650bfe4f6c2e347 100644\n" \
                "--- a/foo.txt\n" \
@@ -226,16 +224,13 @@ class GitClientTest(RBTestBase):
                "-impulerit. Tantaene animis caelestibus irae?\n" \
                " \n"
 
-        os.chdir(self.clone_dir)
+        self.clone()
+        self.add_file('foo.txt', FOO1)
+        self.git.run_command(['checkout', '-b', 'mybranch', '--track', 'master'])
+        self.add_file('foo.txt', FOO2)
 
-        self._git_add_file_commit('foo.txt', FOO1, 'commit 1')
-
-        self._gitcmd(['checkout', '-b', 'mybranch', '--track', 'master'])
-        self._git_add_file_commit('foo.txt', FOO2, 'commit 2')
-
-        self.client.get_repository_info()
-        self.assertEqual(self.client.diff(None), (diff, None))
-        """
+        self.git.get_info()
+        self.assertEqual(self.git.diff(None), (diff, None))
 
     def test_diff_tracking_override(self):
         """Test GitClient diff with option override for tracking branch"""
