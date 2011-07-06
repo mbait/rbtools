@@ -296,3 +296,7 @@ class GitClient(Client):
             print 'Git is not currently able to commit changes. One day...'
 
         return success
+
+    @property
+    def installed(self):
+        return self.util.check_install('git --version')
