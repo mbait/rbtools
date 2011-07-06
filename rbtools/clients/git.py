@@ -26,7 +26,7 @@ class GitClient(Client):
         if not self.util.check_install('git --version'):
             return None
 
-        git_dir = self.run_command(['rev-parse --git-dir']).strip()
+        git_dir = self.run_command(['rev-parse', '--git-dir']).strip()
 
         if git_dir.startswith("fatal:") or not os.path.isdir(git_dir):
             return None
@@ -35,11 +35,12 @@ class GitClient(Client):
         # of a work-tree would result in broken diffs on the server
         os.chdir(os.path.dirname(os.path.abspath(git_dir)))
 
-        self.head_ref = self.run_command(['symbolic-ref -q HEAD']).strip()
+        self.head_ref = self.run_command(['symbolic-ref', '-q',
+                                         'HEAD']).strip()
 
         # We know we have something we can work with. Let's find out
         # what it is. We'll try SVN first.
-        data = self.run_command(['svn info']);
+        data = self.run_command(['svn', 'info'], ignore_errors=True)
 
         m = re.search(r'^Repository Root: (.+)$', data, re.M)
 
@@ -66,7 +67,7 @@ class GitClient(Client):
             # here, figure out what version of git is installed and give
             # the user a hint about what to do next.
             version_parts = re.search('version (\d+)\.(\d+)\.(\d+)',
-                                      self.run_command(['svn --version']))
+                                      self.run_command(['svn', '--version']))
             svn_remote = self.get_property('svn-remote.svn.url')
 
             if (version_parts and
@@ -121,7 +122,7 @@ class GitClient(Client):
         return (upstream_branch, origin_url.rstrip('\n'))
 
     def get_property(self, name, ignore_errors=True):
-        return self.run_command(['config --get', name],
+        return self.run_command(['config', '--get', name],
                                 ignore_errors=ignore_errors).strip()
 
     def is_valid_version(self, actual, expected):
@@ -192,11 +193,12 @@ class GitClient(Client):
         rev_range = "%s..%s" % (ancestor, commit)
 
         if self.type == "svn":
-            diff_lines = self.run_command(['diff --no-color --no-prefix -r -u',
-                                          rev_range], split_lines=True)
+            diff_lines = self.run_command(['diff', '--no-color', '--no-prefix',
+                                          '-r', '-u', rev_range],
+                                          split_lines=True)
             return self.make_svn_diff(ancestor, diff_lines)
         elif self.type == "git":
-            return self.run_command(['diff --no-color --full-index',
+            return self.run_command(['diff', '--no-color', '--full-index',
                                     rev_range])
 
         return None
