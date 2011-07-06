@@ -47,7 +47,7 @@ class GitClientTest(RBTestBase):
 
     def test_scan_for_server_simple(self):
         """Test GitClient scan_for_server, simple case"""
-        pass
+        raise nose.SkipTest('scan_for_server is not implemented')
         """
         self.chdir_tmp()
         self.clone()
@@ -58,7 +58,7 @@ class GitClientTest(RBTestBase):
 
     def test_scan_for_server_reviewboardrc(self):
         "Test GitClient scan_for_server, .reviewboardrc case"""
-        pass
+        raise nose.SkipTest('scan_for_server is not implemented')
         """
         os.chdir(self.clone_dir)
         rc = open(os.path.join(self.clone_dir, '.reviewboardrc'), 'w')
@@ -72,7 +72,7 @@ class GitClientTest(RBTestBase):
 
     def test_scan_for_server_property(self):
         """Test GitClient scan_for_server using repo property"""
-        pass
+        raise nose.SkipTest('scan_for_server is not implemented')
         """
         os.chdir(self.clone_dir)
         self._gitcmd(['config', 'reviewboard.url', self.TESTSERVER])
@@ -84,10 +84,12 @@ class GitClientTest(RBTestBase):
     def test_diff_simple(self):
         """Test GitClient simple diff case"""
         diff = "diff --git a/foo.txt b/foo.txt\n" \
-               "index 634b3e8ff85bada6f928841a9f2c505560840b3a..5e98e9540e1b741b5be24fcb33c40c1c8069c1fb 100644\n" \
+               "index 634b3e8ff85bada6f928841a9f2c505560840b3a.." \
+               "5e98e9540e1b741b5be24fcb33c40c1c8069c1fb 100644\n" \
                "--- a/foo.txt\n" \
                "+++ b/foo.txt\n" \
-               "@@ -6,7 +6,4 @@ multa quoque et bello passus, dum conderet urbem,\n" \
+               "@@ -6,7 +6,4 @@" \
+               " multa quoque et bello passus, dum conderet urbem,\n" \
                " inferretque deos Latio, genus unde Latinum,\n" \
                " Albanique patres, atque altae moenia Romae.\n" \
                " Musa, mihi causas memora, quo numine laeso,\n" \
@@ -104,7 +106,8 @@ class GitClientTest(RBTestBase):
     def test_diff_simple_multiple(self):
         """Test GitClient simple diff with multiple commits case"""
         diff = "diff --git a/foo.txt b/foo.txt\n" \
-               "index 634b3e8ff85bada6f928841a9f2c505560840b3a..63036ed3fcafe870d567a14dd5884f4fed70126c 100644\n" \
+               "index 634b3e8ff85bada6f928841a9f2c505560840b3a.." \
+               "63036ed3fcafe870d567a14dd5884f4fed70126c 100644\n" \
                "--- a/foo.txt\n" \
                "+++ b/foo.txt\n" \
                "@@ -1,12 +1,11 @@\n" \
@@ -135,7 +138,8 @@ class GitClientTest(RBTestBase):
     def test_diff_branch_diverge(self):
         """Test GitClient diff with divergent branches"""
         diff1 = "diff --git a/foo.txt b/foo.txt\n" \
-                "index 634b3e8ff85bada6f928841a9f2c505560840b3a..e619c1387f5feb91f0ca83194650bfe4f6c2e347 100644\n" \
+                "index 634b3e8ff85bada6f928841a9f2c505560840b3a.." \
+                "e619c1387f5feb91f0ca83194650bfe4f6c2e347 100644\n" \
                 "--- a/foo.txt\n" \
                 "+++ b/foo.txt\n" \
                 "@@ -1,4 +1,6 @@\n" \
@@ -145,7 +149,8 @@ class GitClientTest(RBTestBase):
                 " Italiam, fato profugus, Laviniaque venit\n" \
                 " litora, multum ille et terris iactatus et alto\n" \
                 " vi superum saevae memorem Iunonis ob iram;\n" \
-                "@@ -6,7 +8,4 @@ multa quoque et bello passus, dum conderet urbem,\n" \
+                "@@ -6,7 +8,4 @@" \
+                " multa quoque et bello passus, dum conderet urbem,\n" \
                 " inferretque deos Latio, genus unde Latinum,\n" \
                 " Albanique patres, atque altae moenia Romae.\n" \
                 " Musa, mihi causas memora, quo numine laeso,\n" \
@@ -155,10 +160,12 @@ class GitClientTest(RBTestBase):
                 " \n"
 
         diff2 = "diff --git a/foo.txt b/foo.txt\n" \
-                "index 634b3e8ff85bada6f928841a9f2c505560840b3a..5e98e9540e1b741b5be24fcb33c40c1c8069c1fb 100644\n" \
+                "index 634b3e8ff85bada6f928841a9f2c505560840b3a.." \
+                "5e98e9540e1b741b5be24fcb33c40c1c8069c1fb 100644\n" \
                 "--- a/foo.txt\n" \
                 "+++ b/foo.txt\n" \
-                "@@ -6,7 +6,4 @@ multa quoque et bello passus, dum conderet urbem,\n" \
+                "@@ -6,7 +6,4 @@" \
+                " multa quoque et bello passus, dum conderet urbem,\n" \
                 " inferretque deos Latio, genus unde Latinum,\n" \
                 " Albanique patres, atque altae moenia Romae.\n" \
                 " Musa, mihi causas memora, quo numine laeso,\n" \
@@ -169,7 +176,8 @@ class GitClientTest(RBTestBase):
 
         self.clone()
         self.add_file(TEST_FILE, FOO1)
-        self.git.run_command(['checkout', '-b', 'mybranch', '--track', 'origin/master'])
+        self.git.run_command(['checkout', '-b', 'mybranch', '--track',
+                             'origin/master'])
         self.add_file(TEST_FILE, FOO2)
 
         self.git.get_info()
@@ -182,10 +190,12 @@ class GitClientTest(RBTestBase):
     def test_diff_tracking_no_origin(self):
         """Test GitClient diff with a tracking branch, but no origin remote"""
         diff = "diff --git a/foo.txt b/foo.txt\n" \
-               "index 634b3e8ff85bada6f928841a9f2c505560840b3a..5e98e9540e1b741b5be24fcb33c40c1c8069c1fb 100644\n" \
+               "index 634b3e8ff85bada6f928841a9f2c505560840b3a.." \
+               "5e98e9540e1b741b5be24fcb33c40c1c8069c1fb 100644\n" \
                "--- a/foo.txt\n" \
                "+++ b/foo.txt\n" \
-               "@@ -6,7 +6,4 @@ multa quoque et bello passus, dum conderet urbem,\n" \
+               "@@ -6,7 +6,4 @@" \
+               " multa quoque et bello passus, dum conderet urbem,\n" \
                " inferretque deos Latio, genus unde Latinum,\n" \
                " Albanique patres, atque altae moenia Romae.\n" \
                " Musa, mihi causas memora, quo numine laeso,\n" \
@@ -197,7 +207,8 @@ class GitClientTest(RBTestBase):
         git_dir, clone_dir = self.clone()
         self.git.run_command(['remote', 'add', 'quux', git_dir])
         self.git.run_command(['fetch', 'quux'])
-        self.git.run_command(['checkout', '-b', 'mybranch', '--track', 'quux/master'])
+        self.git.run_command(['checkout', '-b', 'mybranch', '--track',
+                             'quux/master'])
         self.add_file('foo.txt', FOO1)
 
         self.git.get_info()
@@ -206,7 +217,8 @@ class GitClientTest(RBTestBase):
     def test_diff_local_tracking(self):
         """Test GitClient diff with a local tracking branch"""
         diff = "diff --git a/foo.txt b/foo.txt\n" \
-               "index 634b3e8ff85bada6f928841a9f2c505560840b3a..e619c1387f5feb91f0ca83194650bfe4f6c2e347 100644\n" \
+               "index 634b3e8ff85bada6f928841a9f2c505560840b3a.." \
+               "e619c1387f5feb91f0ca83194650bfe4f6c2e347 100644\n" \
                "--- a/foo.txt\n" \
                "+++ b/foo.txt\n" \
                "@@ -1,4 +1,6 @@\n" \
@@ -216,7 +228,8 @@ class GitClientTest(RBTestBase):
                " Italiam, fato profugus, Laviniaque venit\n" \
                " litora, multum ille et terris iactatus et alto\n" \
                " vi superum saevae memorem Iunonis ob iram;\n" \
-               "@@ -6,7 +8,4 @@ multa quoque et bello passus, dum conderet urbem,\n" \
+               "@@ -6,7 +8,4 @@" \
+               " multa quoque et bello passus, dum conderet urbem,\n" \
                " inferretque deos Latio, genus unde Latinum,\n" \
                " Albanique patres, atque altae moenia Romae.\n" \
                " Musa, mihi causas memora, quo numine laeso,\n" \
@@ -227,7 +240,8 @@ class GitClientTest(RBTestBase):
 
         self.clone()
         self.add_file('foo.txt', FOO1)
-        self.git.run_command(['checkout', '-b', 'mybranch', '--track', 'master'])
+        self.git.run_command(['checkout', '-b', 'mybranch', '--track',
+                             'master'])
         self.add_file('foo.txt', FOO2)
 
         self.git.get_info()
@@ -235,13 +249,15 @@ class GitClientTest(RBTestBase):
 
     def test_diff_tracking_override(self):
         """Test GitClient diff with option override for tracking branch"""
-        pass
+        raise nose.SkipTest('options is not implemented')
         """
         diff = "diff --git a/foo.txt b/foo.txt\n" \
-               "index 634b3e8ff85bada6f928841a9f2c505560840b3a..5e98e9540e1b741b5be24fcb33c40c1c8069c1fb 100644\n" \
+               "index 634b3e8ff85bada6f928841a9f2c505560840b3a.." \
+               "5e98e9540e1b741b5be24fcb33c40c1c8069c1fb 100644\n" \
                "--- a/foo.txt\n" \
                "+++ b/foo.txt\n" \
-               "@@ -6,7 +6,4 @@ multa quoque et bello passus, dum conderet urbem,\n" \
+               "@@ -6,7 +6,4 @@" \
+               " multa quoque et bello passus, dum conderet urbem,\n" \
                " inferretque deos Latio, genus unde Latinum,\n" \
                " Albanique patres, atque altae moenia Romae.\n" \
                " Musa, mihi causas memora, quo numine laeso,\n" \
@@ -264,11 +280,11 @@ class GitClientTest(RBTestBase):
         """
 
     def test_diff_slash_tracking(self):
-        """Test GitClient diff with tracking branch that has slash in its name"""
-        pass
-        """
+        """Test GitClient diff with tracking branch"""
+        """that has slash in its name"""
         diff = "diff --git a/foo.txt b/foo.txt\n" \
-               "index 5e98e9540e1b741b5be24fcb33c40c1c8069c1fb..e619c1387f5feb91f0ca83194650bfe4f6c2e347 100644\n" \
+               "index 5e98e9540e1b741b5be24fcb33c40c1c8069c1fb.." \
+               "e619c1387f5feb91f0ca83194650bfe4f6c2e347 100644\n" \
                "--- a/foo.txt\n" \
                "+++ b/foo.txt\n" \
                "@@ -1,4 +1,6 @@\n" \
