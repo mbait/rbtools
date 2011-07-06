@@ -22,6 +22,7 @@ class GitClientTest(RBTestBase):
         self.add_file(TEST_FILE, FOO)
         cloned = self.chdir_tmp()
         self.git.run_command(['clone', initial, cloned])
+        return initial
 
     def add_file(self, name,content):
         foo = open(name, 'w')
@@ -179,8 +180,6 @@ class GitClientTest(RBTestBase):
 
     def test_diff_tracking_no_origin(self):
         """Test GitClient diff with a tracking branch, but no origin remote"""
-        pass
-        """
         diff = "diff --git a/foo.txt b/foo.txt\n" \
                "index 634b3e8ff85bada6f928841a9f2c505560840b3a..5e98e9540e1b741b5be24fcb33c40c1c8069c1fb 100644\n" \
                "--- a/foo.txt\n" \
@@ -194,17 +193,14 @@ class GitClientTest(RBTestBase):
                "-impulerit. Tantaene animis caelestibus irae?\n" \
                " \n"
 
-        os.chdir(self.clone_dir)
+        git_dir = self.clone()
+        self.git.run_command(['remote', 'add', 'quux', git_dir])
+        self.git.run_command(['fetch', 'quux'])
+        self.git.run_command(['checkout', '-b', 'mybranch', '--track', 'quux/master'])
+        self.add_file('foo.txt', FOO1)
 
-        self._gitcmd(['remote', 'add', 'quux', self.git_dir])
-        self._gitcmd(['fetch', 'quux'])
-        self._gitcmd(['checkout', '-b', 'mybranch', '--track', 'quux/master'])
-        self._git_add_file_commit('foo.txt', FOO1, 'delete and modify stuff')
-
-        self.client.get_repository_info()
-
-        self.assertEqual(self.client.diff(None), (diff, None))
-        """
+        self.git.get_info()
+        self.assertEqual(self.git.diff(None), (diff, None))
 
     def test_diff_local_tracking(self):
         """Test GitClient diff with a local tracking branch"""
