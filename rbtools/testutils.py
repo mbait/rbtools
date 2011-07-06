@@ -12,7 +12,9 @@ class RBTestBase(unittest.TestCase):
         self.set_user_home_tmp()
 
     def chdir_tmp(self, dir=None):
-        return os.chdir(mkdtemp(dir=dir))
+        dname = mkdtemp(dir=dir)
+        os.chdir(dname)
+        return dname
 
     def gen_uuid(self):
         return str(uuid.uuid4())
