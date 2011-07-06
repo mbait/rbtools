@@ -1,4 +1,5 @@
 import nose
+import os
 
 from rbtools.clients.client import Repository
 from rbtools.clients.git import GitClient
@@ -22,7 +23,7 @@ class GitClientTest(RBTestBase):
         self.add_file(TEST_FILE, FOO)
         cloned = self.chdir_tmp()
         self.git.run_command(['clone', initial, cloned])
-        return initial
+        return (initial, cloned)
 
     def add_file(self, name,content):
         foo = open(name, 'w')
@@ -193,7 +194,7 @@ class GitClientTest(RBTestBase):
                "-impulerit. Tantaene animis caelestibus irae?\n" \
                " \n"
 
-        git_dir = self.clone()
+        git_dir, clone_dir = self.clone()
         self.git.run_command(['remote', 'add', 'quux', git_dir])
         self.git.run_command(['fetch', 'quux'])
         self.git.run_command(['checkout', '-b', 'mybranch', '--track', 'quux/master'])
@@ -278,18 +279,19 @@ class GitClientTest(RBTestBase):
                " litora, multum ille et terris iactatus et alto\n" \
                " vi superum saevae memorem Iunonis ob iram;\n"
 
-        os.chdir(self.git_dir)
-        self._gitcmd(['checkout', '-b', 'not-master'])
-        self._git_add_file_commit('foo.txt', FOO1, 'commit 1')
+        git_dir, clone_dir = self.clone()
+        os.chdir(git_dir)
+        self.git.run_command(['checkout', '-b', 'not-master'])
+        self.add_file('foo.txt', FOO1)
 
-        os.chdir(self.clone_dir)
-        self._gitcmd(['fetch', 'origin'])
-        self._gitcmd(['checkout', '-b', 'my/branch', '--track', 'origin/not-master'])
-        self._git_add_file_commit('foo.txt', FOO2, 'commit 2')
+        os.chdir(clone_dir)
+        self.git.run_command(['fetch', 'origin'])
+        self.git.run_command(['checkout', '-b', 'my/branch', '--track',
+                             'origin/not-master'])
+        self.add_file('foo.txt', FOO2)
 
-        self.client.get_repository_info()
-        self.assertEqual(self.client.diff(None), (diff, None))
-        """
+        self.git.get_info()
+        self.assertEqual(self.git.diff(None), (diff, None))
 
 
 FOO = """\
