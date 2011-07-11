@@ -140,6 +140,8 @@ class RepositoryInfo(object):
 
 
 def load_scmclients():
+    global SCMCLIENTS
+
     from rbtools.clients.clearcase import ClearCaseClient
     from rbtools.clients.cvs import CVSClient
     from rbtools.clients.git import GitClient
