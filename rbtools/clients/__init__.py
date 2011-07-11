@@ -139,7 +139,7 @@ class RepositoryInfo(object):
         return self
 
 
-def load_scmclients():
+def load_scmclients(options):
     global SCMCLIENTS
 
     from rbtools.clients.clearcase import ClearCaseClient
@@ -151,13 +151,13 @@ def load_scmclients():
     from rbtools.clients.svn import SVNClient
 
     SCMCLIENTS = [
-        CVSClient(),
-        ClearCaseClient(),
-        GitClient(),
-        MercurialClient(),
-        PerforceClient(),
-        PlasticClient(),
-        SVNClient(),
+        CVSClient(options=options),
+        ClearCaseClient(options=options),
+        GitClient(options=options),
+        MercurialClient(options=options),
+        PerforceClient(options=options),
+        PlasticClient(options=options),
+        SVNClient(options=options),
     ]
 
 
@@ -168,7 +168,7 @@ def scan_usable_client(options):
     tool = None
 
     if SCMCLIENTS is None:
-        load_scmclients()
+        load_scmclients(options)
 
     # Try to find the SCM Client we're going to be working with.
     for tool in SCMCLIENTS:
