@@ -167,7 +167,7 @@ def scan_usable_client(options):
     repository_info = None
     tool = None
 
-    if not SCMCLIENTS:
+    if SCMCLIENTS is None:
         load_scmclients()
 
     # Try to find the SCM Client we're going to be working with.
