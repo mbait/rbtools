@@ -5,6 +5,7 @@ from rbtools.clients.client import Repository
 from rbtools.clients.git import GitClient
 from rbtools.testutils import RBTestBase
 
+
 TEST_FILE = 'foo.txt'
 
 
