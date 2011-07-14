@@ -10,7 +10,6 @@ TEST_FILE = 'foo.txt'
 
 
 class GitClientTest(RBTestBase):
-
     def setUp(self):
         self.git = GitClient()
         if not self.in_path('git'):
