@@ -209,7 +209,7 @@ class GitClient(Client):
         svn diff would generate. This is needed so the SVNTool in Review
         Board can properly parse this diff.
         """
-        rev = self.run_command(['svn find-rev', parent_branch]).strip()
+        rev = self.run_command(['svn', 'find-rev', parent_branch]).strip()
 
         if not rev:
             return None
@@ -278,7 +278,7 @@ class GitClient(Client):
         success = False
 
         #test the patch using -check
-        output = self.run_command(['apply --check'], str(patch_file))
+        output = self.run_command(['apply', '--check'], str(patch_file))
 
         if output:
             self.util.raise_error('Unable to apply patch.  Fix the errors '
