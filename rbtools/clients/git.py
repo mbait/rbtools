@@ -138,9 +138,7 @@ class GitClient(Client):
                 actual[2] >= expected[2])
 
     def run_command(self, params, **kwargs):
-        args = [GIT_CMD]
-        args.extend(params)
-        return self.util.execute(args, **kwargs)
+        return self.util.execute([GIT_CMD] + params, **kwargs)
 
     def scan_for_server(self, repository_info):
         """Scans for a git server
