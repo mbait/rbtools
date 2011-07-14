@@ -11,10 +11,10 @@ TEST_FILE = 'foo.txt'
 
 class GitClientTest(RBTestBase):
     def setUp(self):
-        self.git = GitClient()
         if not self.in_path('git'):
             raise nose.SkipTest('git not found in path')
 
+        self.git = GitClient()
         self.set_user_home_tmp()
 
     def clone(self):
