@@ -25,7 +25,7 @@ class GitClientTest(RBTestBase):
         self.git.run_command(['clone', initial, cloned])
         return (initial, cloned)
 
-    def add_file(self, name,content):
+    def add_file(self, name, content):
         foo = open(name, 'w')
         foo.write(content)
         foo.close()
