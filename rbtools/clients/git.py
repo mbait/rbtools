@@ -130,11 +130,17 @@ class GitClient(SCMClient):
         if remote and remote != '.' and merge:
             self.upstream_branch = '%s/%s' % (remote, merge)
 
-        self.upstream_branch, origin_url = self.get_origin(self.upstream_branch,
-                                                           True)
+        url = None
+        if self._options.repository_url:
+            url = self._options.repository_url
+        else:
+            self.upstream_branch, origin_url = \
+                self.get_origin(self.upstream_branch, True)
 
-        if not origin_url or origin_url.startswith("fatal:"):
-            self.upstream_branch, origin_url = self.get_origin()
+            if not origin_url or origin_url.startswith("fatal:"):
+                self.upstream_branch, origin_url = self.get_origin()
+
+            url = origin_url.rstrip('/')
 
         # Central bare repositories don't have origin URLs.
         # We return git_dir instead and hope for the best.

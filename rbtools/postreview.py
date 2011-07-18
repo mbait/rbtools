@@ -131,8 +131,8 @@ class PresetHTTPAuthHandler(urllib2.BaseHandler):
         self.used = False
 
     def reset(self):
-        self.password_mgr.rb_user = None
-        self.password_mgr.rb_pass = None
+        self.password_mgr.rb_user = options.http_username
+        self.password_mgr.rb_pass = options.http_password
         self.used = False
 
     def http_request(self, request):
@@ -1150,13 +1150,18 @@ def parse_options(args):
     parser.add_option("--p4-passwd",
                       dest="p4_passwd", default=None,
                       help="the Perforce password or ticket of the user in the P4USER environment variable")
+    parser.add_option('--svn-changelist', dest='svn_changelist', default=None,
+                      help='generate the diff for review based on a local SVN '
+                           'changelist')
     parser.add_option("--repository-url",
                       dest="repository_url", default=None,
                       help="the url for a repository for creating a diff "
                            "outside of a working copy (currently only "
                            "supported by Subversion with --revision-range or "
                            "--diff-filename and ClearCase with relative "
-                           "paths outside the view)")
+                           "paths outside the view). For git, this specifies"
+                           "the origin url of the current repository, "
+                           "overriding the origin url supplied by the git client.")
     parser.add_option("-d", "--debug",
                       action="store_true", dest="debug", default=DEBUG,
                       help="display debug output")
@@ -1164,6 +1169,12 @@ def parse_options(args):
                       dest="diff_filename", default=None,
                       help='upload an existing diff file, instead of '
                            'generating a new diff')
+    parser.add_option('--http-username',
+                      dest='http_username', default=None, metavar='USERNAME',
+                      help='username for HTTP Basic authentication')
+    parser.add_option('--http-password',
+                      dest='http_password', default=None, metavar='PASSWORD',
+                      help='password for HTTP Basic authentication')
 
     (globals()["options"], args) = parser.parse_args(args)
 
@@ -1252,6 +1263,8 @@ def main():
     if options.revision_range:
         diff, parent_diff = tool.diff_between_revisions(options.revision_range, args,
                                                         repository_info)
+    elif options.svn_changelist:
+        diff, parent_diff = tool.diff_changelist(options.svn_changelist)
     elif options.diff_filename:
         parent_diff = None
 
