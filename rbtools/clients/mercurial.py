@@ -3,6 +3,7 @@ import re
 
 from rbtools.api.utilities import RBUtilities
 from rbtools.clients.client import Client, Repository
+from rbtools.clients.svn import SVNRepository
 
 
 class MercurialClient(Client):
@@ -103,7 +104,7 @@ class MercurialClient(Client):
             return None
 
         base_path = m.group(1)[len(path):] or "/"
-        return RepositoryInfo(path=path, base_path=base_path,
+        return Repository(path=path, base_path=base_path,
                               supports_parent_diffs=True)
 
     @property
@@ -264,11 +265,36 @@ class MercurialClient(Client):
         return self.util.execute(["hg", "diff", "-r", r1, "-r", r2],
                        env=self._hg_env)
 
+    def run_command(self, command, split_lines=False,
+                    ignore_errors=False, extra_ignore_errors=(),
+                    translate_newlines=True, hg_dir=None):
+        #if hg_dir:
+        #    full_command = ['hg', '--cwd', hg_dir]
+        #else:
+        #    full_command = ['hg']
+
+        ## We're *not* doing `env = env or {}` here because
+        ## we want the caller to be able to *enable* reading
+        ## of user and system-level hgrc configuration.
+        #env = self._hg_env.copy()
+
+        #if not env:
+        #    env = {
+        #        'HGRCPATH': os.devnull,
+        #        'HGPLAIN': '1',
+        #    }
+
+        #full_command.extend(command)
+
+        #return execute(full_command, env, split_lines, ignore_errors,
+        #               extra_ignore_errors, translate_newlines)
+        pass
+
     def scan_for_server(self, repository_info):
         # Scan first for dot files, since it's faster and will cover the
         # user's $HOME/.reviewboardrc
         server_url = \
-            super(MercurialRepository, self).scan_for_server(repository_info)
+            super(MercurialClient, self).scan_for_server(repository_info)
 
         if not server_url and self.hgrc.get('reviewboard.url'):
             server_url = self.hgrc.get('reviewboard.url').strip()
