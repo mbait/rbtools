@@ -1,39 +1,50 @@
-import os
-import re
 import sys
 
-from rbtools.commands import *
+from optparse import IndentedHelpFormatter, OptionParser
+
+from rbtools import get_version_string
 from rbtools.api.utilities import RBUtilities
-#from rbtools.api.temputilities import execute
-import __init__
+from rbtools.commands import RB_CMD_PATTERN, RB_COMMANDS, RB_MAIN
+
+
+_COMMANDS_LIST_STR = 'Avaiable commands are:'
+
+
+# TODO:
+# move this into rbtools/util at mering the branch
+# where such hierachy already exists
+class ImprovedFormatter(IndentedHelpFormatter):
+    def format_description(self, description):
+        if description:
+            return description + '\n'
+        else:
+            return ''
 
 
 def main():
-    valid = False
+    parser = OptionParser(prog=RB_MAIN, usage='%prog <command> [<args>]',
+                          formatter=ImprovedFormatter(),
+                          description=_COMMANDS_LIST_STR,
+                          version='RBTools %s' % (get_version_string()))
+    parser.disable_interspersed_args()
+    opt, args = parser.parse_args()
 
-    if len(sys.argv) > 1:
+    if not args:
+        parser.print_help()
+        sys.exit(1)
+
+    cmd = filter(lambda x: RB_MAIN + args[0] == x[0], RB_COMMANDS)
+    if cmd:
         util = RBUtilities()
+        args[0] = RB_CMD_PATTERN % (args[0])
+        print util.safe_execute(args)
+    else:
+        parser.error("'%s' is not a command" % (args[0]))
 
-        # Check if the first parameter is a rb<name>.py file in this dir
-        pattern = re.compile('(rb%s){1}(?!.)' % sys.argv[1])
-        for n in __init__.scripts:
-            if pattern.match(n) and not valid:
-                valid = True
-                cmd_list = ['rb-%s' % sys.argv[1]] + sys.argv[2:]
-                data = util.safe_execute(cmd_list)
 
-                if data:
-                    print data
-
-    if not valid:
-        print "usage: rb COMMAND [OPTIONS] [ARGS]"
-        print ""
-        print "The commands available are:"
-
-        for n in __init__.scripts:
-            sp = re.split('rb', n)
-            if len(sp) > 1:
-                print sp[1]
+_indent = max(map(lambda x: len(x[0]), RB_COMMANDS)) - len(RB_MAIN)
+for cmd, desc in RB_COMMANDS:
+    _COMMANDS_LIST_STR += '\n  %-*s  %s' % (_indent, cmd[len(RB_MAIN):], desc)
 
 if __name__ == "__main__":
     main()

@@ -27,7 +27,7 @@ from setuptools import setup, find_packages
 from setuptools.command.test import test
 
 from rbtools import get_package_version, is_release, VERSION
-from rbtools.commands.__init__ import scripts
+from rbtools.commands import RB_CMD_PATTERN, RB_COMMANDS, RB_MAIN
 
 PACKAGE_NAME = 'RBTools'
 
@@ -52,9 +52,10 @@ script_list.append('post-review = rbtools.postreview:main')
 script_list.append('rb = rbtools.commands.rb:main')
 
 
-for n in scripts:
-    name = re.split('rb', n)[1]
-    script_list.append('rb-%s = rbtools.commands.rb%s:main' % (name, name))
+for cmd, desc in RB_COMMANDS:
+    name = re.split(RB_MAIN, cmd)[1]
+    fmt = RB_CMD_PATTERN + ' = rbtools.commands.rb%s:main'
+    script_list.append(fmt % (name, name))
 
 
 entry_scripts = {'console_scripts': script_list}
