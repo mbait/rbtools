@@ -10,10 +10,6 @@ from rbtools.clients.getclient import get_client
 
 def main():
     parser = optparse.OptionParser(prog='rb create')
-    parser.add_option('-s', '--summary', action='store', dest='summary',
-                      help='summary of the review')
-    parser.add_option('-d', '--description', action='store', dest='desc',
-                      help='description of the review')
 
     opts, args = parser.parse_args()
     settings = Settings()
