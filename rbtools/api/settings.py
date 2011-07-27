@@ -29,8 +29,8 @@ class Settings(object):
         if full_name in ATTRIBUTES:
             return self.options[full_name]
         else:
-            raise AttributeError, "'%s' is neither attribute nor option name" \
-                                  % name
+            raise AttributeError("'%s' is neither attribute nor option name" \
+                                 % name)
 
     def __setattr__(self, name, value):
         full_name = self._full_name(name)
@@ -40,15 +40,15 @@ class Settings(object):
             object.__setattr__(self, name, value)
 
     def _full_name(self, name):
-        """check if the property <name> is valid option"""
-        """and prepend MAIN_SECTION_NAME if not"""
+        """Check if the property <name> is a valid option
+        and prepend MAIN_SECTION_NAME if not."""
         if not name in OPTIONS:
             return SEPARATOR.join([MAIN_SECTION_NAME, name])
         else:
             return name
 
     def load(self):
-        """load consequently global options then local ones"""
+        """Load options from all possible locations."""
         # if particular config file was supplied use it
         # else load default files
         cfg = ConfigParser()
@@ -58,7 +58,7 @@ class Settings(object):
                 self.options[SEPARATOR.join([sec, name])] = cfg.get(sec, name)
 
     def save(self, file_name):
-        """writes config to file"""
+        """Writes config to file."""
         cfg = ConfigParser()
         for opt in OPTIONS:
             full_name = SEPARATOR.join(opt)

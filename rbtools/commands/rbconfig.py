@@ -16,15 +16,16 @@ def main():
 
     opts, args = p.parse_args()
     values = {
-        'user' : opts.user,
-        'reviewboard_url' : opts.server_url,
-        'cookie_file' : opts.cookie
+        'user': opts.user,
+        'reviewboard_url': opts.server_url,
+        'cookie_file': opts.cookie
     }
     # Filter out the values that are None.
     valid = [(name, values[name])
              for name in values if values[name] is not None]
 
     settings = Settings()
+
     if valid:
         for name, value in valid:
             print "Set %s : %s" % (name, value)

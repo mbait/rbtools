@@ -14,12 +14,14 @@ SETTINGS_ATTRS = [
 
 
 class SettingsTest(RBTestBase):
-
+    """Check saving/loading of user settings."""
     def check_fake_settings(self, settings, samples):
+        """Validate test settings."""
         for name in samples:
             self.assertEqual(getattr(settings, name), samples[name])
 
     def set_fake_settings(self, settings, attrs=SETTINGS_ATTRS):
+        """Set some fake values which will be checked after test run."""
         fake_data = {}
         for name in attrs:
             fake_data[name] = self.gen_uuid()
@@ -28,6 +30,7 @@ class SettingsTest(RBTestBase):
         return fake_data
 
     def test_set_settings(self):
+        """Merely check possibility to set settings fields."""
         settings = Settings()
         data = self.set_fake_settings(settings)
         self.check_fake_settings(settings, data)
