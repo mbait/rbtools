@@ -3,7 +3,7 @@ import sys
 
 from rbtools.api.settings import Settings
 from rbtools.api.utilities import  RBUtilities
-from rbtools.testutils import RBTestBase
+from rbtools.util.testutil import RBTestBase
 
 
 SETTINGS_ATTRS = [
