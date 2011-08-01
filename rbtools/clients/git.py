@@ -280,12 +280,13 @@ class GitClient(Client):
         success = False
 
         #test the patch using -check
-        output = self.util.execute(['git', 'apply', '--check', str(patch_file)])
+        output = self.util.execute(['git', 'apply', '--check',
+                                   str(patch_file)])
 
         if output:
             self.util.raise_error('Unable to apply patch.  Fix the errors '
                                   'and try again')
-            return False        
+            return False
 
         #apply the patch using git-apply
         self.util.execute(['git', 'apply', str(patch_file)])

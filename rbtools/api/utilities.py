@@ -8,6 +8,7 @@ from tempfile import mkstemp
 
 tempfiles = []
 
+
 class RBUtilities(object):
     """A collection of utility functions
 
@@ -83,12 +84,12 @@ class RBUtilities(object):
                                  close_fds=True,
                                  universal_newlines=translate_newlines,
                                  env=env)
-            
+
         if split_lines:
             data = p.stdout.readlines()
         else:
             data = p.stdout.read()
-        
+
         rc = p.wait()
 
         if rc and not ignore_errors and rc not in extra_ignore_errors:
