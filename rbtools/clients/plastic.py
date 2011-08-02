@@ -3,9 +3,9 @@ import os
 import re
 
 from rbtools.clients import SCMClient, RepositoryInfo
-from rbtools.utils.checks import check_install
-from rbtools.utils.files import make_tempfile
-from rbtools.utils.process import die, execute
+from rbtools.util.check import check_install
+from rbtools.util.fs import make_tempfile
+from rbtools.util.process import die, execute
 
 
 class PlasticClient(SCMClient):

@@ -4,8 +4,8 @@ import sys
 
 from rbtools.clients import SCMClient, RepositoryInfo
 from rbtools.clients.svn import SVNClient, SVNRepositoryInfo
-from rbtools.utils.checks import check_install
-from rbtools.utils.process import die, execute
+from rbtools.util.check import check_install
+from rbtools.util.process import die, execute
 
 
 class GitClient(SCMClient):

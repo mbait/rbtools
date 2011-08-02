@@ -4,9 +4,9 @@ import sys
 
 from rbtools.api.errors import APIError
 from rbtools.clients import SCMClient, RepositoryInfo
-from rbtools.utils.checks import check_gnu_diff, check_install
-from rbtools.utils.files import make_tempfile
-from rbtools.utils.process import die, execute
+from rbtools.util.check import check_gnu_diff, check_install
+from rbtools.util.fs import make_tempfile
+from rbtools.util.process import die, execute
 
 # This specific import is necessary to handle the paths for
 # cygwin enabled machines.

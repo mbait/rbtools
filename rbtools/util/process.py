@@ -3,7 +3,7 @@ import os
 import subprocess
 import sys
 
-from rbtools.utils.files import cleanup_tempfiles
+from rbtools.util.fs import cleanup_tempfiles
 
 
 def die(msg=None):

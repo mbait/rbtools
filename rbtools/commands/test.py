@@ -2,7 +2,7 @@ import sys
 
 from rbtools.api.settings import Settings
 from rbtools.commands.rbconfig import main as rbconfig
-from rbtools.util.testutil import RBTestBase
+from rbtools.util.testbase import RBTestBase
 
 
 OPT_MAPPINGS = {

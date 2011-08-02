@@ -6,8 +6,8 @@ import re
 import sys
 
 from rbtools.api.settings import Settings
-from rbtools.api.utilities import RBUtilities
-from rbtools.util.testutil import RBTestBase
+from rbtools.util import check, fs, process
+from rbtools.util.testbase import RBTestBase
 
 
 SETTINGS_ATTRS = [
@@ -95,14 +95,12 @@ class SettingsTest(RBTestBase):
 class UtilitiesTest(RBTestBase):
     def test_check_install(self):
         """Test 'check_install' method."""
-        util = RBUtilities()
-        self.assertTrue(util.check_install(sys.executable + ' --version'))
-        self.assertFalse(util.check_install(self.gen_uuid()))
+        self.assertTrue(check.check_install(sys.executable + ' --version'))
+        self.assertFalse(check.check_install(self.gen_uuid()))
 
     def test_make_tempfile(self):
         """Test 'make_tempfile' method."""
-        util = RBUtilities()
-        fname = util.make_tempfile()
+        fname = fs.make_tempfile()
 
         self.assertTrue(os.path.isfile(fname))
         self.assertEqual(os.stat(fname).st_uid, os.geteuid())
@@ -110,13 +108,9 @@ class UtilitiesTest(RBTestBase):
 
     def test_execute(self):
         """Test 'execute' method."""
-        util = RBUtilities()
-
         self.assertTrue(re.match('.*?%d.%d.%d' % sys.version_info[:3],
-                        util.execute([sys.executable, '-V'])))
+                        process.execute([sys.executable, '-V'])))
 
     def test_die(self):
         """Test 'die' method."""
-        util = RBUtilities()
-
-        self.assertRaises(SystemExit, util.die)
+        self.assertRaises(SystemExit, process.die)

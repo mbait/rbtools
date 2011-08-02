@@ -28,7 +28,7 @@ from rbtools.clients.git import GitClient
 from rbtools.clients.mercurial import MercurialClient
 from rbtools.clients.svn import SVNRepositoryInfo
 from rbtools.postreview import load_config_files, ReviewBoardServer
-from rbtools.utils.process import execute
+from rbtools.util.process import execute
 
 
 TEMPDIR_SUFFIX = '__' + __name__.replace('.', '_')

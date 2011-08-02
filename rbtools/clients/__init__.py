@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from rbtools.utils.process import die
+from rbtools.util.process import die
 
 
 # The clients are lazy loaded via load_scmclients()

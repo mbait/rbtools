@@ -3,8 +3,8 @@ import os
 import socket
 
 from rbtools.clients import SCMClient, RepositoryInfo
-from rbtools.utils.checks import check_install
-from rbtools.utils.process import execute
+from rbtools.util.check import check_install
+from rbtools.util.process import execute
 
 
 class CVSClient(SCMClient):

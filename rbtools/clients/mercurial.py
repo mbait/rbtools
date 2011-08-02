@@ -4,8 +4,8 @@ import re
 
 from rbtools.clients import SCMClient, RepositoryInfo
 from rbtools.clients.svn import SVNClient
-from rbtools.utils.checks import check_install
-from rbtools.utils.process import execute
+from rbtools.util.check import check_install
+from rbtools.util.process import execute
 
 
 class MercurialClient(SCMClient):

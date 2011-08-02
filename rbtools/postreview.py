@@ -16,8 +16,8 @@ from rbtools.api.errors import APIError
 from rbtools.clients import scan_usable_client
 from rbtools.clients.perforce import PerforceClient
 from rbtools.clients.plastic import PlasticClient
-from rbtools.utils.files import walk_parents
-from rbtools.utils.process import die
+from rbtools.util.fs import walk_parents
+from rbtools.util.process import die
 
 try:
     # Specifically import json_loads, to work around some issues with
