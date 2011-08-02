@@ -23,6 +23,7 @@ REQUEST_TYPES = [MAKE, GET]
 def main():
     diff(sys.argv[1:])
 
+
 def diff(args):
     valid = False
     settings = Settings()
@@ -128,7 +129,7 @@ def diff(args):
                         if not diff_id:
                             diff_id = num_revisions
 
-                        diff_id = str(diff_id)            
+                        diff_id = str(diff_id)
 
                         if diff_id.isdigit():
                             #single diff

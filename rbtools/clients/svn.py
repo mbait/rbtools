@@ -102,13 +102,13 @@ class SVNClient(Client):
                 to_file, _ = self.parse_filename_header(line[4:])
                 info = self.svn_info(to_file)
 
-                if info.has_key("Copied From URL"):
+                if "Copied From URL" in info:
                     self.url = info["Copied From URL"]
                     root = info["Repository Root"]
                     from_file = urllib.unquote(url[len(root):])
                     result.append(from_line.replace(to_file, from_file))
                 else:
-                    result.append(from_line) # as is, no copy performed
+                    result.append(from_line)  # as is, no copy performed
 
             # We only mangle '---' lines. All others get added straight to
             # the output.
@@ -172,7 +172,7 @@ class SVNClient(Client):
 
             if front:
 
-                if line.startswith('/'): # already absolute
+                if line.startswith('/'):  # already absolute
                     line = front + " " + line
                 else:
                     # filename and rest of line (usually the revision
@@ -242,8 +242,8 @@ class SVNRepository(Repository):
         repository.) It does this by comparing repository UUIDs. If the
         repositories use the same path, you'll get back self, otherwise you'll
         get a different SvnRepository object (with a different path).
-        """    
-        root = RootResource( server, server.server_url + '/api')
+        """
+        root = RootResource(server, server.server_url + '/api')
         repo_list = root.get('repositories')
 
         for repository in repo_list:

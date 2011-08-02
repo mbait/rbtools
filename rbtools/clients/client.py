@@ -41,12 +41,13 @@ class Client(object):
         return (None, None)
 
     def apply_patch(self, patch_file=None, commit=False):
-        """applies a patch to the current repository and optionally commits changes"""
+        """Applies a patch to the current repository and optionally commits
+        changes."""
 
         if not patch_file:
             print 'no patch was passed'
             return False
-        
+
         if not os.path.isfile(patch_file):
             print str(patch_file) + 'is not a file in the current directory'
             return False

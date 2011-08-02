@@ -15,6 +15,7 @@ RESOURCE_LIST = 'Resource List'
 ROOT_RESOURCE = 'Root Resource'
 ROOT = 'root'
 
+
 class ResourceBase(object):
     """ Base class from which other Resource objects should inherit.
     """
@@ -502,8 +503,8 @@ class ResourceListBase(ResourceBase):
                 rscs.append(rsc)
         else:
             rscs = Resource(self.server_interface,
-                self.get_field(self.resource_name)[position] \
-                ['links']['self']['href'])
+                self.get_field(self.resource_name)
+                              [position]['links']['self']['href'])
             rscs._load()
 
         return rscs
@@ -681,7 +682,7 @@ class ReviewRequest(ResourceSpecific):
 
 class DiffResource(ResourceSpecific):
     """Resource associated with diff files on RB servers"""
-    FILE_MIME_TYPE = 'text/x-patch'    
+    FILE_MIME_TYPE = 'text/x-patch'
 
     def get_diff(self):
         """ Gets the actual diff referenced by this resource.

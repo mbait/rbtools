@@ -1,5 +1,5 @@
 import getpass
-from json import dumps 
+from json import dumps
 
 
 def json_to_string(json):
