@@ -2,10 +2,11 @@
 
 Any new modules created under rbtools/api should be tested here."""
 import os
+import re
 import sys
 
 from rbtools.api.settings import Settings
-from rbtools.api.utilities import  RBUtilities
+from rbtools.api.utilities import RBUtilities
 from rbtools.util.testutil import RBTestBase
 
 
@@ -60,8 +61,8 @@ class SettingsTest(RBTestBase):
     def test_get_attr(self):
         """Test if access to unexisting attribute raises AttributeError."""
         settings = Settings()
-        with self.assertRaises(AttributeError):
-            settings.another_fake_attribute
+        self.assertRaises(AttributeError,
+                          lambda: settings.another_fake_attribute)
 
     def test_use_global(self):
         """Test settings operations at global level."""
@@ -93,7 +94,6 @@ class SettingsTest(RBTestBase):
 
 
 class UtilitiesTest(RBTestBase):
-
     def test_check_install(self):
         """Test 'check_install' method."""
         util = RBUtilities()
@@ -113,13 +113,11 @@ class UtilitiesTest(RBTestBase):
         """Test 'execute' method."""
         util = RBUtilities()
 
-        self.assertRegexpMatches(util.execute([sys.executable, '--version']),
-                                 '%d.%d.%d' % sys.version_info[:3])
+        self.assertTrue(re.match('.*?%d.%d.%d' % sys.version_info[:3],
+                        util.execute([sys.executable, '-V'])))
 
     def test_die(self):
         """Test 'die' method."""
         util = RBUtilities()
 
-        with self.assertRaises(SystemExit) as rc:
-            util.die()
-        self.assertEqual(rc.exception.code, 1)
+        self.assertRaises(SystemExit, util.die)
