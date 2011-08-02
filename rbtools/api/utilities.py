@@ -3,7 +3,6 @@ import logging
 import os
 import subprocess
 import sys
-
 from tempfile import mkstemp
 
 tempfiles = []
@@ -41,9 +40,9 @@ class RBUtilities(object):
         """
         try:
             subprocess.Popen(command.split(' '),
-                                 stdin=subprocess.PIPE,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
+                             stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
             return True
         except OSError:
             return False

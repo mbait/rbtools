@@ -26,18 +26,20 @@ class Settings(object):
 
     def __getattr__(self, name):
         full_name = self._full_name(name)
+
         if full_name in ATTRIBUTES:
             return self.options[full_name]
         else:
-            raise AttributeError("'%s' is neither attribute nor option name" \
+            raise AttributeError("'%s' is neither attribute nor option name"
                                  % name)
 
     def __setattr__(self, name, value):
         full_name = self._full_name(name)
+
         if full_name in ATTRIBUTES:
             self.options[full_name] = value
         else:
-            object.__setattr__(self, name, value)
+            super(Settings, self).__setattr__(name, value)
 
     def _full_name(self, name):
         """Check if the property <name> is a valid option
@@ -49,10 +51,11 @@ class Settings(object):
 
     def load(self):
         """Load options from all possible locations."""
-        # if particular config file was supplied use it
-        # else load default files
+        # If particular config file was supplied use it
+        # else load default files.
         cfg = ConfigParser()
         cfg.read(self.configs)
+
         for sec, name in OPTIONS:
             if cfg.has_section(sec) and cfg.has_option(sec, name):
                 self.options[SEPARATOR.join([sec, name])] = cfg.get(sec, name)
@@ -60,12 +63,14 @@ class Settings(object):
     def save(self, file_name):
         """Writes config to file."""
         cfg = ConfigParser()
+
         for opt in OPTIONS:
             full_name = SEPARATOR.join(opt)
             if full_name in self.options:
-                (sec, name) = opt
+                sec, name = opt
                 if not cfg.has_section(sec):
                     cfg.add_section(sec)
+
                 cfg.set(sec, name, self.options[full_name])
 
         cfg.write(open(file_name, 'w'))

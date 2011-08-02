@@ -27,10 +27,12 @@ class RBConfigTest(RBTestBase):
     def set_fake_values(self, *opts):
         args = ['']
         data = {}
-        for name, value in [(name, self.gen_uuid()) for name in opts]:
+
+        for name in opts:
+            uuid = self.gen_uuid()
             args.append(name)
-            args.append(value)
-            data[OPT_MAPPINGS[name]] = value
+            args.append(uuid)
+            data[OPT_MAPPINGS[name]] = uuid
 
         self.reset_cl_args(values=args)
         return data

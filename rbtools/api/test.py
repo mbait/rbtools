@@ -51,8 +51,7 @@ class SettingsTest(RBTestBase):
         self.check_fake_settings(settings, data)
 
     def test_set_attr(self):
-        """Settings class is know to overwrite __getattr__ and __setattr__,
-        this test checks that we still can get/set regular attributes."""
+        """Test whether we still can merely set attributes."""
         settings = Settings()
         test_value = [[dict()]]
         settings.some_non_config_value = test_value
