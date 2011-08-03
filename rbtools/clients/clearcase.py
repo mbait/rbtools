@@ -42,12 +42,12 @@ class ClearCaseClient(SCMClient):
         if viewname.startswith('** NONE'):
             return None
 
-        # Now that we know it's ClearCase,
-        # make sure we have GNU diff installed, and error out if we don't.
+        # Now that we know it's ClearCase, make sure we have GNU diff installed,
+        # and error out if we don't.
         check_gnu_diff()
 
-        property_lines = execute(["cleartool", "lsview", "-full",
-                                  "-properties", "-cview"], split_lines=True)
+        property_lines = execute(["cleartool", "lsview", "-full", "-properties",
+                                  "-cview"], split_lines=True)
         for line in property_lines:
             properties = line.split(' ')
             if properties[0] == 'Properties:':

@@ -211,6 +211,7 @@ class SVNClient(SCMClient):
         This handles paths that have been svn switched to other parts of the
         repository.
         """
+
         result = []
 
         for line in diff_content:

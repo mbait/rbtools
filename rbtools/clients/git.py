@@ -322,30 +322,6 @@ class GitClient(SCMClient):
 
         return diff_data
 
-    def _internal_apply_patch(self, patch_file, commit):
-        """actually applies the patch using git-apply"""
-
-        success = False
-
-        #test the patch using -check
-        output = self.util.execute(['git', 'apply', '--check',
-                                   str(patch_file)])
-
-        if output:
-            self.util.raise_error('Unable to apply patch.  Fix the errors '
-                                  'and try again')
-            return False
-
-        #apply the patch using git-apply
-        self.util.execute(['git', 'apply', str(patch_file)])
-        success = True
-
-        #commit changes
-        if success and commit:
-            print 'Git is not currently able to commit changes. One day...'
-
-        return success
-
     def diff_between_revisions(self, revision_range, args, repository_info):
         """Perform a diff between two arbitrary revisions"""
 
@@ -369,10 +345,10 @@ class GitClient(SCMClient):
                                                    revision_range)
 
             if self._options.guess_summary and not self._options.summary:
-                self._options.summary = execute([self.git, "log",
-                                                 "--pretty=format:%s",
-                                                 revision_range + ".."],
-                                                ignore_errors=True).strip()
+                self._options.summary = execute(
+                    [self.git, "log", "--pretty=format:%s",
+                     revision_range + ".."],
+                    ignore_errors=True).strip()
 
             if self._options.guess_description and \
                not self._options.description:
@@ -395,8 +371,8 @@ class GitClient(SCMClient):
 
             if self._options.guess_summary and not self._options.summary:
                 self._options.summary = execute(
-                    [self.git, "log", "--pretty=format:%s",
-                     "%s..%s" % (r1, r2)],
+                    [self.git, "log",
+                     "--pretty=format:%s", "%s..%s" % (r1, r2)],
                     ignore_errors=True).strip()
 
             if self._options.guess_description and \
@@ -407,3 +383,27 @@ class GitClient(SCMClient):
                     ignore_errors=True).strip()
 
             return (self.make_diff(r1, r2), parent_diff_lines)
+
+    def _internal_apply_patch(self, patch_file, commit):
+        """actually applies the patch using git-apply"""
+
+        success = False
+
+        #test the patch using -check
+        output = self.util.execute(['git', 'apply', '--check',
+                                    str(patch_file)])
+
+        if output:
+            self.util.raise_error('Unable to apply patch.  Fix the errors '
+                                  'and try again')
+            return False
+
+        #apply the patch using git-apply
+        self.util.execute(['git', 'apply', str(patch_file)])
+        success = True
+
+        #commit changes
+        if success and commit:
+            print 'Git is not currently able to commit changes. One day...'
+
+        return success
