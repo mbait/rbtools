@@ -20,14 +20,17 @@ DIFF_MIME_TYPE = 'text/x-patch'
 FETCH_METHOD_PREFIX = 'get_'
 ASYNC_METHOD_SUFFIX = '_async'
 
+# Special tokens.
 METHOD_LIST_TOKEN = 'links'
 RESULT_TOKEN = 'stat'
 LINK_HREF_TOKEN = 'href'
 LINK_METHOD_TOKEN = 'method'
+
 # CRUD.
 CREATE_METHOD_TOKEN = 'create'
 UPDATE_METHOD_TOKEN = 'update'
 DELETE_METHOD_TOKEN = 'delete'
+
 # Resource navigation.
 PREV_METHOD_TOKEN = 'prev'
 SELF_METHOD_TOKEN = 'self'
@@ -53,6 +56,7 @@ class ResourceFactory(object):
                 raise error.InvalidPayload(e)
 
             token = None
+
             if has_token:
                 token = name
 
@@ -81,6 +85,7 @@ class ResourceFactory(object):
 
         if METHOD_LIST_TOKEN in payload:
             links = payload[METHOD_LIST_TOKEN]
+
             for name in links:
                 r = Request(links[name][LINK_HREF_TOKEN])
 

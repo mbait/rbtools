@@ -1,19 +1,17 @@
 import mimetools
 import urllib2
 
-from rbtools.api import FETCH_REQUEST_METHOD
-
 
 DEFAULT_MIME_TYPE = 'application/json'
 CONTENT_TYPE_HEADER = 'Content-Type'
 
 
 class Request(object):
-    """Containts information about particular resource request.
+    """Contains information about particular resource requests.
 
     RequestTransport implementaions must know how to convert this into their
     native request representation (like urllib2.Request)."""
-    def __init__(self, url, method=FETCH_REQUEST_METHOD, headers={}):
+    def __init__(self, url, method='GET', headers={}):
         self.url = url
         self.method = method
         self.headers = headers
@@ -28,9 +26,7 @@ class Request(object):
 
 
 class RequestTransport(object):
-    """
-    Hight-level interface for making HTTP requests.
-    """
+    """High-level interface for making HTTP requests."""
     def _encode_multipart_formdata(self, fields=None, files=None):
         """
         Encodes data for use in an HTTP request.
@@ -71,25 +67,23 @@ class RequestTransport(object):
 
 
 class ThreadedRequestTransport(RequestTransport):
-    """
-    Perfroms HTTP requests using urllib2 library.
+    """Perfroms HTTP requests using urllib2 library.
 
     As urllib2 does not support asynchronous IO this uses threads to emulate
     it. Full-featured asynchronous transport will be implemented later.
     """
     class RequestWithMethod(urllib2.Request):
-        """
-        Wrapper class for urllib2.Request.  This allows for using PUT
-        and DELETE, in addition to POST and GET.
+        """Wrapper class for urllib2.Request.
+
+        This allows for using PUT and DELETE, in addition to POST and GET.
         """
         def __init__(self, *args, **kwargs):
             urllib2.Request.__init__(self, *args, **kwargs)
-            self.method = FETCH_REQUEST_METHOD
 
         def get_method(self):
-            return self.method or \
-                   super(ThreadedRequestTransport.RequestWithMethod,
-                         self).get_method()
+            return (self.method or
+                    super(ThreadedRequestTransport.RequestWithMethod,
+                          self).get_method())
 
     def __init__(self, cookie_path_file=None, password_mgr=None):
         #self.server_url = server_url
@@ -121,8 +115,7 @@ class ThreadedRequestTransport(RequestTransport):
         super(ThreadedRequestTransport, self).__init__()
 
     def has_valid_cookie(self):
-        """
-        Checks if a valid cookie already exists for to the RB server.
+        """Checks if a valid cookie already exists for to the RB server.
 
         Returns true if the ServerInterface can find and load a cookie for the
         server that has not expired.

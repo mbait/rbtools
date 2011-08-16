@@ -1,7 +1,6 @@
 """
 API exceptions and request error wrappers
 """
-import inspect
 
 
 request_errors = {}
@@ -16,15 +15,14 @@ class RequestError(Exception):
 
     See the following document for more info on request errors:
     http://www.reviewboard.org/docs/manual/dev/webapi/2.0/errors/"""
-    def __str__(self):
-        return self.message
+    pass
 
 
 class UnknownRequestError(RequestError):
     """Denotes request error with unfamiliar code. This may be due to updates
     in the list of request errors on the server that were not reflected here.
     """
-    code = -1
+    pass
 
 
 class DoesNotExist(RequestError):
@@ -230,8 +228,7 @@ class ResponseError(Exception):
     This may be due to network problems or unexpected response data (e.g.
     not JSON).
     """
-    def __init__(self, e):
-        super(ResponseError, self).__init__(e)
+    pass
 
 
 class InvalidPayload(ResponseError):
@@ -251,14 +248,11 @@ class InvalidTokenType(ResponseError):
     pass
 
 
-def get_exception_by_code(code=-1):
+def get_exception_by_code(code):
     """Given response error code returns corresponding exception class."""
-    if not code in request_errors:
-        code = -1
     return request_errors[code]
 
 
-for _n, _c in inspect.getmembers(inspect.getmodule(RequestError),
-                                 inspect.isclass):
-    if not RequestError == _c and issubclass(_c, RequestError):
-        request_errors[_c.code] = _c
+for _name, _value in locals():
+    if _value != RequestError and issubclass(_value, RequestError):
+        request_errors[_value.code] = _value

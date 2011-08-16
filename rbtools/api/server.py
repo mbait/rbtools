@@ -1,5 +1,5 @@
 """
-defines API entry point.
+Defines API entry point.
 
 This module contains single class providing access for all resources.
 Generally, resource methods are named as 'get_' + <resource_name>, e.g.
@@ -18,7 +18,7 @@ from rbtools.api.request import Request
 from rbtools.api.resource import ResourceFactory
 
 
-class RBServer:
+class RBServer(object):
     """Review Board server interface."""
     _API_SUFFIX = '/api/'
     _ROOT_METHOD_NAME = 'root'
