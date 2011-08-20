@@ -253,6 +253,6 @@ def get_exception_by_code(code):
     return request_errors[code]
 
 
-for _name, _value in locals():
-    if _value != RequestError and issubclass(_value, RequestError):
-        request_errors[_value.code] = _value
+#for _name, _value in locals().iteritems():
+#    if _value != RequestError and issubclass(_value, RequestError):
+#        request_errors[_value.code] = _value

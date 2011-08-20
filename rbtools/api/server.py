@@ -14,7 +14,6 @@ Example usage:
 
 TODO: place here working example.
 """
-from rbtools.api.request import Request
 from rbtools.api.resource import ResourceFactory
 
 
@@ -24,5 +23,5 @@ class RBServer(object):
     _ROOT_METHOD_NAME = 'root'
 
     def __init__(self, url, factory=ResourceFactory()):
-        factory.create_method(self, self._ROOT_METHOD_NAME,
-                              Request(url + self._API_SUFFIX))
+        factory.create_root(self, self._ROOT_METHOD_NAME,
+                            url + self._API_SUFFIX)

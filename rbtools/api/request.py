@@ -1,6 +1,11 @@
 import mimetools
 import urllib2
 
+try:
+    from json import loads as json_loads
+except ImportError:
+    from simplejson import loads as json_loads
+
 
 DEFAULT_MIME_TYPE = 'application/json'
 CONTENT_TYPE_HEADER = 'Content-Type'
@@ -16,6 +21,7 @@ class Request(object):
         self.method = method
         self.headers = headers
         self.payload = None
+        self._params = {}
 
     def set_header(self, name, value):
         self.headers[name] = value
@@ -24,9 +30,21 @@ class Request(object):
         self.payload = payload
         self.set_header(CONTENT_TYPE_HEADER, mime_type)
 
+    @property
+    def params(self):
+        return self._params
+
 
 class RequestTransport(object):
-    """High-level interface for making HTTP requests."""
+    """High-level interface for making HTTP requests.
+
+    Classes implementing RequestTransport are responsible for throwing or
+    returning exception if a server request failed despite the level where the
+    error has occured. It means that if even the response code was 2xx but the
+    API request failed the instance object must not propagate payload into
+    resource generation, but should extract error representation and pass it
+    to the corresponding handler.
+    """
     def _encode_multipart_formdata(self, fields=None, files=None):
         """
         Encodes data for use in an HTTP request.
