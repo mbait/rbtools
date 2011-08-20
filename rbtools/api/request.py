@@ -104,66 +104,12 @@ class ThreadedRequestTransport(RequestTransport):
             return self.method
 
     def __init__(self, cookie_path_file=None, password_mgr=None):
-        #self.server_url = server_url
-
-        #if cookie_path_file:
-        #    self.cookie_file = cookie_path_file
-        #    #if not os.path.isfile(cookie_path_file):
-        #    #    temp_file = open(cookie_path_file, 'w')
-        #    #    temp_file.close()
-        #    #self.cookie_file = cookie_path_file
-        #else:
-        #    self.cookie_file = '.default_cookie'
-
-        #self.cookie_jar = cookielib.MozillaCookieJar(self.cookie_file)
-
-        #if os.path.isfile(self.cookie_file):
-        #    self.cookie_jar.load()
-
-        #cookie_handler = urllib2.HTTPCookieProcessor(self.cookie_jar)
-        #basic_auth_handler = urllib2.HTTPBasicAuthHandler(self.password_mgr)
-        #digest_auth_handler = urllib2.HTTPDigestAuthHandler(self.password_mgr)
-        #opener = urllib2.build_opener(cookie_handler,
-        #                              basic_auth_handler,
-        #                              digest_auth_handler)
-        #opener.addheaders = [
-        #    ('User-agent', 'RBTools/' + get_package_version())
-        #]
-        #urllib2.install_opener(opener)
         super(ThreadedRequestTransport, self).__init__()
 
-    def has_valid_cookie(self):
-        """Checks if a valid cookie already exists for to the RB server.
-
-        Returns true if the ServerInterface can find and load a cookie for the
-        server that has not expired.
-        """
-        #parsed_url = urlparse(self.server_url)
-        #host = parsed_url[1]
-        #host = host.split(":")[0]
-        #path = parsed_url[2] or '/'
-
-        #try:
-        #    self.cookie_jar.load(self.cookie_file, ignore_expires=True)
-
-        #    try:
-        #        cookie = self.cookie_jar._cookies[host][path]['rbsessionid']
-
-        #        if not cookie.is_expired():
-        #            return True
-        #    except KeyError:
-        #        # Cookie file loaded, but no cookie for this server
-        #        pass
-        #except IOError:
-        #    # Couldn't load cookie file
-        #    pass
-
-        #return False
-        pass
-
     def _native_request(self, request):
-        return self.RequestWithMethod('%s?%s' %
-                                      (request.url, urlencode(request.params)),
+        params = urlencode(dict((k.replace('_', '-'), v)
+                           for k, v in request.params.iteritems()))
+        return self.RequestWithMethod('%s?%s' % (request.url, params),
                                       request.payload, request.headers)
 
     def send(self, request):
