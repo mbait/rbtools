@@ -149,5 +149,8 @@ class ResourceFactoryTest(RBTestBase):
 
     def test_self_request(self):
         """Tests 'self' method of a resource."""
-        # TODO: test 'self' method
-        pass
+        json = '{"foo":{"links":{"self":{"method":"GET","href":"foo"}}}}'
+        res = self.factory.create_resource(json_loads(json), 'foo')
+
+        res = res.get_self()
+        self.assertEqual(res.bar, 'baz')
