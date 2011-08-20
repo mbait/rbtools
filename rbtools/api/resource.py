@@ -169,10 +169,17 @@ class ResourceList(Resource):
         self._list = lst
 
     def __iter__(self):
-        return iter(self._lst)
+        return iter(self._list)
 
     def __len__(self):
         return len(self._list)
 
     def all(self, *args, **kwargs):
-        pass
+        cnt = 0
+        seq = self
+        while len(seq):
+            for i in iter(seq):
+                yield i
+
+            cnt += len(seq)
+            seq = self.get_self(start=cnt)

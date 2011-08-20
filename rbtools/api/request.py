@@ -1,4 +1,5 @@
 import mimetools
+from urllib import urlencode
 import urllib2
 
 try:
@@ -97,11 +98,10 @@ class ThreadedRequestTransport(RequestTransport):
         """
         def __init__(self, *args, **kwargs):
             urllib2.Request.__init__(self, *args, **kwargs)
+            self.method = 'GET'
 
         def get_method(self):
-            return (self.method or
-                    super(ThreadedRequestTransport.RequestWithMethod,
-                          self).get_method())
+            return self.method
 
     def __init__(self, cookie_path_file=None, password_mgr=None):
         #self.server_url = server_url
@@ -162,13 +162,13 @@ class ThreadedRequestTransport(RequestTransport):
         pass
 
     def _native_request(self, request):
-        return ThreadedRequestTransport.RequestWithMethod(request.url,
-                                                          request.payload,
-                                                          request.headers)
+        return self.RequestWithMethod('%s?%s' %
+                                      (request.url, urlencode(request.params)),
+                                      request.payload, request.headers)
 
     def send(self, request):
         r = urllib2.urlopen(self._native_request(request))
-        return r.read()
+        return json_loads(r.read())
 
     def send_async(self, request, on_success, on_failure=None):
         pass

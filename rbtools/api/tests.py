@@ -88,12 +88,20 @@ class ResourceFactoryTest(RBTestBase):
                              'ggs2","method":"POST"}}}],"links":{"fooo":{"href'
                              '":"foo","method":"UPDATE"},"baar":{"method":"DEL'
                              'ETE","href":"bar"}},"baaz":"quux"}')
-        res_list = self.factory.create_resource(payload)
+        res_list = self.factory.create_resource(payload, 'foo_list')
 
-        # TODO: checks.
-        #for item in res_list:
-        #    pass
-        pass
+        for item in res_list:
+            self.assertTrue(isinstance(item, Resource))
+
+        i = iter(res_list)
+        item = i.next()
+        self.assertEqual(item.foo, 'bar')
+        self.assertTrue(callable(item.get_get))
+        self.assertTrue(callable(item.post))
+        item = i.next()
+        self.assertEqual(item.bar, 'baz')
+        self.assertTrue(callable(item.get_fetch))
+        self.assertTrue(callable(item.send))
 
     def test_call_method(self):
         """Test method invocation of generated resource."""
@@ -117,13 +125,9 @@ class ResourceFactoryTest(RBTestBase):
         """Test resource list iterator."""
         json = '{"links":{"bar":{"method":"GET","href":"bar"}}}'
         res = self.factory.create_resource(json_loads(json))
-        bar = res.get_bar()
-
-        # TODO: check if iterable
-        #bar_item = bar.next()
-        #self.assertEqual(bar_item.foo, 'foo')
-        #bar_item = bar.next()
-        #self.assertEqual(bar_item.foo, 'bar')
+        for item in res.get_bar():
+            self.assertTrue(isinstance(item, Resource))
+            self.assertTrue(item.foo == 'bar' or item.foo == 'baz')
 
     def test_resource_list_all_iterator(self):
         json = '{"links":{"bar":{"method":"GET","href":"bar"}}}'
@@ -145,4 +149,5 @@ class ResourceFactoryTest(RBTestBase):
 
     def test_self_request(self):
         """Tests 'self' method of a resource."""
+        # TODO: test 'self' method
         pass
