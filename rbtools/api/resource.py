@@ -174,12 +174,12 @@ class ResourceList(Resource):
     def __len__(self):
         return len(self._list)
 
-    def all(self, *args, **kwargs):
+    def all(self, **kwargs):
         cnt = 0
-        seq = self
+        seq = self.get_self(**kwargs)
         while len(seq):
             for i in iter(seq):
                 yield i
 
             cnt += len(seq)
-            seq = self.get_self(start=cnt)
+            seq = self.get_self(start=cnt, **kwargs)
