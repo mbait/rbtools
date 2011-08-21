@@ -85,12 +85,8 @@ class RequestTransport(object):
         return content_type, content
 
 
-class ThreadedRequestTransport(RequestTransport):
-    """Perfroms HTTP requests using urllib2 library.
-
-    As urllib2 does not support asynchronous IO this uses threads to emulate
-    it. Full-featured asynchronous transport will be implemented later.
-    """
+class SimpleRequestTransport(RequestTransport):
+    """Perfroms HTTP requests using urllib2 library."""
     class RequestWithMethod(urllib2.Request):
         """Wrapper class for urllib2.Request.
 
@@ -104,7 +100,7 @@ class ThreadedRequestTransport(RequestTransport):
             return self.method
 
     def __init__(self, cookie_path_file=None, password_mgr=None):
-        super(ThreadedRequestTransport, self).__init__()
+        super(SimpleRequestTransport, self).__init__()
 
     def _native_request(self, request):
         params = urlencode(dict((k.replace('_', '-'), v)
@@ -117,4 +113,4 @@ class ThreadedRequestTransport(RequestTransport):
         return json_loads(r.read())
 
     def send_async(self, request, on_success, on_failure=None):
-        pass
+        raise NotImplementedError

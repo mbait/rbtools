@@ -5,7 +5,7 @@ See the following document for more info on REST API 2.0:
 http://www.reviewboard.org/docs/manual/dev/webapi/
 """
 from rbtools.api import errors
-from rbtools.api.request import Request, ThreadedRequestTransport
+from rbtools.api.request import Request, SimpleRequestTransport
 
 
 ACCEPT_HEADER = 'Accept'
@@ -43,7 +43,7 @@ class ResourceFactory(object):
         SELF_METHOD_TOKEN
     ]
 
-    def __init__(self, transport=ThreadedRequestTransport()):
+    def __init__(self, transport=SimpleRequestTransport()):
         """Initializes factory class.
 
         Parameters:
@@ -115,7 +115,7 @@ class ResourceFactory(object):
         """
         method_name = name
 
-        if 'GET' == request.method:
+        if request.method == 'GET':
             method_name = FETCH_METHOD_PREFIX + method_name
 
         if async:
