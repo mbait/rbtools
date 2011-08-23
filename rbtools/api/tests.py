@@ -3,6 +3,7 @@ try:
 except ImportError:
     from simplejson import loads as json_loads
 
+from rbtools.api.errors import get_exception_by_code, RequestError
 from rbtools.api.request import Request, RequestTransport
 from rbtools.api.resource import Resource, ResourceFactory
 from rbtools.utils.testbase import RBTestBase
@@ -154,3 +155,18 @@ class ResourceFactoryTest(RBTestBase):
 
         res = res.get_self()
         self.assertEqual(res.bar, 'baz')
+
+
+class ErrorsTests(RBTestBase):
+    def _is_valid_exception(self, cls, code):
+        self.assert_(issubclass(cls, RequestError))
+        self.assert_(cls.code == code)
+
+    def test_unknown_error(self):
+        """Test retrieving exception for unknown request errors."""
+        self._is_valid_exception(get_exception_by_code(-1), -1)
+
+    def test_known_errors(self):
+        """Test retrieving exception for some known request errors."""
+        for code in [101, 203, 218]:
+            self._is_valid_exception(get_exception_by_code(code), code)
