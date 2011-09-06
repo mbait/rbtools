@@ -53,6 +53,12 @@ class ResourceFactory(object):
         self.transport = transport
 
     def create_resource(self, payload, token=None):
+        def parse_on_load(token):
+            def _parse(payload):
+                return self.create_resource(payload, token)
+
+            return _parse
+
         resource = Resource()
         exclude_attrs = self.EXCLUDE_ATTRIBUTES[:]
 
@@ -77,7 +83,8 @@ class ResourceFactory(object):
                             links[name][LINK_METHOD_TOKEN])
 
                 if not name in self.EXCLUDE_METHODS:
-                    self.inject_method(resource, name, r, name)
+                    #self.inject_method(resource, name, r, name)
+                    self.inject_method(resource, name, r, parse_on_load(name))
                 else:
                     # Handle special methods.
                     if SELF_METHOD_TOKEN == name:
@@ -123,7 +130,7 @@ class ResourceFactory(object):
 
         return method_name
 
-    def inject_method(self, res, name, request, token=None):
+    def inject_method(self, res, name, request, on_success, on_failure):
         """Generates method requesting resource from the server.
 
         The result method takes care of both committing network request and
@@ -131,24 +138,28 @@ class ResourceFactory(object):
         successful).
         """
         setattr(res, self.get_method_name(name, request),
-                lambda **kwargs: self.load_resource(request, token, **kwargs))
+                lambda **kwargs: self.load_resource(request, False,
+                                                    on_success, on_failure,
+                                                    **kwargs))
         setattr(res, self.get_method_name(name, request, True),
-                lambda on_success, on_failure=None, **kwargs:
-                    self.load_resource(request, token, True, on_success,
-                                       on_failure, **kwargs))
+                lambda **kwargs: self.load_resource(request, True,
+                                                    on_success, on_failure,
+                                                    **kwargs))
 
-    def load_resource(self, request, token, async=False,
-                      on_success=None, on_failure=None, **kwargs):
-        def on_load_async(payload):
-            on_success(self.create_resource(payload, token))
-
+    def load_resource(self, request, async=False, on_success=None,
+                      on_failure=None, **kwargs):
         request.params.update(kwargs)
 
         if async:
-            return self.transport.send_async(request, on_load_async,
-                                             on_failure)
+            return self.transport.send_async(request, on_success, on_failure)
         else:
-            return self.create_resource(self.transport.send(request), token)
+            try:
+                return on_success(self.transport.send(request))
+            except errors.RequestError, e:
+                if on_failure:
+                    on_failure(e)
+                else:
+                    raise e
 
 
 class Resource(object):
@@ -159,6 +170,9 @@ class Resource(object):
     that their state flushes and if 'save' is called again only changed
     delta will be sent.
     """
+    def __init__(self):
+        
+
     def __setattr__(self, name, value):
         super(Resource, self).__setattr__(name, value)
 
@@ -183,3 +197,66 @@ class ResourceList(Resource):
 
             cnt += len(seq)
             seq = self.get_self(start=cnt, **kwargs)
+
+""" Assignment tracker """
+
+class TracksAssignment(object):
+    def __init__(self):
+        self.acc = {}
+
+    def __delattr__(self, name):
+        if name in self.acc:
+            del self.acc[name]
+
+        if hasattr(self, name):
+            super(TracksAssignment, self).__delattr__(name)
+
+    def __getattribute__(self, name):
+        if name in self.acc:
+            return self.acc[name]
+
+    def __setattr__(self, name, value):
+        if hasattr(self, 'setter'):
+            self.setter(name, value)
+        else:
+            super(TracksAssignment, self).__setattr__(name, value)
+
+    def changed(self):
+        return len(self.acc) > 0
+
+    def delta(self):
+        delta = self.acc.copy()
+        self._unlock()
+
+        for k, v in self.acc.iteritems():
+            setattr(self, k, v)
+
+        self.acc.clear()
+        self._lock()
+
+        return delta
+
+    def _lock(self):
+        def setter(k, v):
+            self.acc[k] = v
+
+        self.setter = setter
+
+    def _unlock(self):
+        del self.setter
+
+
+t = TracksAssignment()
+t._lock()
+print t.changed()
+t.a = 1
+t.c = 2
+t.d = 4
+print t.changed()
+
+print t.a
+print t.delta()
+
+t.a = 2
+print t.a
+print t.__dict__
