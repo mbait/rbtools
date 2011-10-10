@@ -14,25 +14,82 @@ DIFF_MIME_TYPE = 'text/x-patch'
 
 FETCH_METHOD_PREFIX = 'get_'
 ASYNC_METHOD_SUFFIX = '_async'
-
 # Special tokens.
 METHOD_LIST_TOKEN = 'links'
 RESULT_TOKEN = 'stat'
 LINK_HREF_TOKEN = 'href'
 LINK_METHOD_TOKEN = 'method'
-
 # CRUD.
 CREATE_METHOD_TOKEN = 'create'
 UPDATE_METHOD_TOKEN = 'update'
 DELETE_METHOD_TOKEN = 'delete'
-
 # Resource navigation.
-PREV_METHOD_TOKEN = 'prev'
 SELF_METHOD_TOKEN = 'self'
-NEXT_METHOD_TOKEN = 'next'
 
 
-class ResourceFactory(object):
+class MethodInjector(object):
+    def __init__(self, factory):
+        self.factory = factory
+
+    def set_request(self, request):
+        self.request = request
+
+    def set_success_callback(self, on_success):
+        self.on_success = on_success
+
+    def set_failure_callback(self, on_failure):
+        self.on_failure = on_failure
+
+    def inject(self, name, resource):
+        """Generates methods requesting resource from the server.
+
+        There are two methods generated: blocked and asynchronous. The first
+        method is blocked until the data received or an error occured, and the
+        second one returns These
+        methods take care of both committing network request and parsing
+        returned payload (or raising an error if the call was not successful).
+        """
+        setattr(resource, self._get_method_name(name),
+                MethodInjector._create_sync_callback(self.transport,
+                                                     self.request,
+                                                     self.on_success,
+                                                     self.on_failure))
+        setattr(resource, self._get_method_name(name, async=True),
+                MethodInjector._create_async_callback(self.transport,
+                                                      self.request,
+                                                      self.on_success,
+                                                      self.on_failure))
+
+    def _get_method_name(self, name, async):
+        """Contructs method name for injection.
+
+        The result name is mostly based on request parameters.
+        """
+        if self.request.method == 'GET':
+            name = FETCH_METHOD_PREFIX + name
+
+        if async:
+            name += ASYNC_METHOD_SUFFIX
+
+        return name
+
+    @staticmethod
+    def _create_sync_callback(transport, request, on_success, on_failure):
+        def sync_callback(**kwargs):
+            # TODO: catch low-level network exceptions
+            return on_success(transport.send(request))
+
+        return sync_callback
+
+    @staticmethod
+    def _create_async_callback(transport, request, on_success, on_failure):
+        def async_callback(**kwargs):
+            transport.send_async(request, on_success, on_failure)
+
+        return async_callback
+
+
+class ResourceBuilder(object):
     """Creates resource objects out of JSON payload.
     """
     EXCLUDE_ATTRIBUTES = [
@@ -47,18 +104,12 @@ class ResourceFactory(object):
         """Initializes factory class.
 
         Parameters:
-            transport - object implementing RequestTransport and responsible
+            transport - as object implementing RequestTransport and responsible
                         for sending requests to the server.
         """
         self.transport = transport
 
     def create_resource(self, payload, token=None):
-        def parse_on_load(token):
-            def _parse(payload):
-                return self.create_resource(payload, token)
-
-            return _parse
-
         resource = Resource()
         exclude_attrs = self.EXCLUDE_ATTRIBUTES[:]
 
@@ -78,29 +129,34 @@ class ResourceFactory(object):
         if METHOD_LIST_TOKEN in payload:
             links = payload[METHOD_LIST_TOKEN]
 
+            injector = MethodInjector(self.transport)
+
             for name in links:
-                r = Request(links[name][LINK_HREF_TOKEN],
-                            links[name][LINK_METHOD_TOKEN])
+                injector.set_request(Request(links[name][LINK_HREF_TOKEN],
+                                             links[name][LINK_METHOD_TOKEN]))
 
                 if not name in self.EXCLUDE_METHODS:
-                    #self.inject_method(resource, name, r, name)
-                    self.inject_method(resource, name, r, parse_on_load(name))
+                    on_success = lambda p: self.create_resource(p, name)
+                    injector.set_success_callback(on_success)
+                    injector.inject(resource, name)
                 else:
                     # Handle special methods.
                     if SELF_METHOD_TOKEN == name:
-                        self.inject_method(resource, name, r, token)
+                        on_success = lambda p: self.create_resource(p, token)
+                        injector.set_success_callback(on_success)
+                        injector.inject(resource, name)
 
-                    if CREATE_METHOD_TOKEN in links:
-                        # TODO: inject 'create'
-                        pass
+            if CREATE_METHOD_TOKEN in links:
+                # TODO: inject 'create'
+                pass
 
-                    if UPDATE_METHOD_TOKEN in links:
-                        # TODO: inject 'save'
-                        pass
+            if UPDATE_METHOD_TOKEN in links:
+                # TODO: inject 'save'
+                pass
 
-                    if DELETE_METHOD_TOKEN in links:
-                        # TODO: inject 'delete'
-                        pass
+            if DELETE_METHOD_TOKEN in links:
+                # TODO: inject 'delete'
+                pass
 
         # Copy all non-special properties into resource.
         for key in payload:
@@ -113,53 +169,10 @@ class ResourceFactory(object):
         return [self.create_resource(payload) for payload in lst]
 
     def create_root(self, obj, name, url):
-        self.inject_method(obj, name, Request(url))
-
-    def get_method_name(self, name, request, async=False):
-        """Contructs method name for injection.
-
-        The result name is mostly based on request parameters.
-        """
-        method_name = name
-
-        if request.method == 'GET':
-            method_name = FETCH_METHOD_PREFIX + method_name
-
-        if async:
-            method_name += ASYNC_METHOD_SUFFIX
-
-        return method_name
-
-    def inject_method(self, res, name, request, on_success, on_failure):
-        """Generates method requesting resource from the server.
-
-        The result method takes care of both committing network request and
-        parsing returned payload (or raising an error if the call was not
-        successful).
-        """
-        setattr(res, self.get_method_name(name, request),
-                lambda **kwargs: self.load_resource(request, False,
-                                                    on_success, on_failure,
-                                                    **kwargs))
-        setattr(res, self.get_method_name(name, request, True),
-                lambda **kwargs: self.load_resource(request, True,
-                                                    on_success, on_failure,
-                                                    **kwargs))
-
-    def load_resource(self, request, async=False, on_success=None,
-                      on_failure=None, **kwargs):
-        request.params.update(kwargs)
-
-        if async:
-            return self.transport.send_async(request, on_success, on_failure)
-        else:
-            try:
-                return on_success(self.transport.send(request))
-            except errors.RequestError, e:
-                if on_failure:
-                    on_failure(e)
-                else:
-                    raise e
+        #self.inject_method(obj, name, Request(url))
+        injector = MethodInjector(self.transport)
+        injector.set_success_callback(self.create_resource)
+        injector.inject(obj, name, url)
 
 
 class Resource(object):
@@ -171,10 +184,48 @@ class Resource(object):
     delta will be sent.
     """
     def __init__(self):
-        
+        self.acc = {}
+
+    def __delattr__(self, name):
+        if name in self.acc:
+            del self.acc[name]
+
+        if hasattr(self, name):
+            super(Resource, self).__delattr__(name)
+
+    def __getattribute__(self, name):
+        if name in self.acc:
+            return self.acc[name]
 
     def __setattr__(self, name, value):
-        super(Resource, self).__setattr__(name, value)
+        if hasattr(self, 'setter'):
+            self.setter(name, value)
+        else:
+            super(Resource, self).__setattr__(name, value)
+
+    def is_changed(self):
+        return len(self.acc) > 0
+
+    def get_delta(self):
+        delta = self.acc.copy()
+        self._unlock()
+
+        for k, v in self.acc.iteritems():
+            setattr(self, k, v)
+
+        self.acc.clear()
+        self._lock()
+
+        return delta
+
+    def _lock(self):
+        def setter(k, v):
+            self.acc[k] = v
+
+        self.setter = setter
+
+    def _unlock(self):
+        del self.setter
 
 
 class ResourceList(Resource):
@@ -197,66 +248,3 @@ class ResourceList(Resource):
 
             cnt += len(seq)
             seq = self.get_self(start=cnt, **kwargs)
-
-""" Assignment tracker """
-
-class TracksAssignment(object):
-    def __init__(self):
-        self.acc = {}
-
-    def __delattr__(self, name):
-        if name in self.acc:
-            del self.acc[name]
-
-        if hasattr(self, name):
-            super(TracksAssignment, self).__delattr__(name)
-
-    def __getattribute__(self, name):
-        if name in self.acc:
-            return self.acc[name]
-
-    def __setattr__(self, name, value):
-        if hasattr(self, 'setter'):
-            self.setter(name, value)
-        else:
-            super(TracksAssignment, self).__setattr__(name, value)
-
-    def changed(self):
-        return len(self.acc) > 0
-
-    def delta(self):
-        delta = self.acc.copy()
-        self._unlock()
-
-        for k, v in self.acc.iteritems():
-            setattr(self, k, v)
-
-        self.acc.clear()
-        self._lock()
-
-        return delta
-
-    def _lock(self):
-        def setter(k, v):
-            self.acc[k] = v
-
-        self.setter = setter
-
-    def _unlock(self):
-        del self.setter
-
-
-t = TracksAssignment()
-t._lock()
-print t.changed()
-t.a = 1
-t.c = 2
-t.d = 4
-print t.changed()
-
-print t.a
-print t.delta()
-
-t.a = 2
-print t.a
-print t.__dict__
