@@ -8,10 +8,6 @@ from rbtools.api import errors
 from rbtools.api.request import Request, SimpleRequestTransport
 
 
-ACCEPT_HEADER = 'Accept'
-
-DIFF_MIME_TYPE = 'text/x-patch'
-
 FETCH_METHOD_PREFIX = 'get_'
 ASYNC_METHOD_SUFFIX = '_async'
 # Special tokens.
@@ -27,7 +23,7 @@ DELETE_METHOD_TOKEN = 'delete'
 SELF_METHOD_TOKEN = 'self'
 
 
-class MethodInjector(object):
+class MethodBuilder(object):
     def __init__(self, factory):
         self.factory = factory
 
@@ -49,18 +45,18 @@ class MethodInjector(object):
         methods take care of both committing network request and parsing
         returned payload (or raising an error if the call was not successful).
         """
-        setattr(resource, self._get_method_name(name),
-                MethodInjector._create_sync_callback(self.transport,
+        setattr(resource, self._name_for_method(name),
+                MethodBuilder._create_sync_callback(self.transport,
                                                      self.request,
                                                      self.on_success,
                                                      self.on_failure))
-        setattr(resource, self._get_method_name(name, async=True),
-                MethodInjector._create_async_callback(self.transport,
+        setattr(resource, self._name_for_method(name, async=True),
+                MethodBuilder._create_async_callback(self.transport,
                                                       self.request,
                                                       self.on_success,
                                                       self.on_failure))
 
-    def _get_method_name(self, name, async):
+    def _name_for_method(self, name, async):
         """Contructs method name for injection.
 
         The result name is mostly based on request parameters.
@@ -75,21 +71,17 @@ class MethodInjector(object):
 
     @staticmethod
     def _create_sync_callback(transport, request, on_success, on_failure):
-        def sync_callback(**kwargs):
-            # TODO: catch low-level network exceptions
+        try:
             return on_success(transport.send(request))
-
-        return sync_callback
+        except RequestException, e:
+            on_failure(e)
 
     @staticmethod
     def _create_async_callback(transport, request, on_success, on_failure):
-        def async_callback(**kwargs):
-            transport.send_async(request, on_success, on_failure)
-
-        return async_callback
+        transport.send_async(request, on_success, on_failure)
 
 
-class ResourceBuilder(object):
+class ResourceFactory(object):
     """Creates resource objects out of JSON payload.
     """
     EXCLUDE_ATTRIBUTES = [
@@ -129,7 +121,7 @@ class ResourceBuilder(object):
         if METHOD_LIST_TOKEN in payload:
             links = payload[METHOD_LIST_TOKEN]
 
-            injector = MethodInjector(self.transport)
+            injector = MethodBuilder(self.transport)
 
             for name in links:
                 injector.set_request(Request(links[name][LINK_HREF_TOKEN],
@@ -168,12 +160,6 @@ class ResourceBuilder(object):
     def create_resource_list(self, lst):
         return [self.create_resource(payload) for payload in lst]
 
-    def create_root(self, obj, name, url):
-        #self.inject_method(obj, name, Request(url))
-        injector = MethodInjector(self.transport)
-        injector.set_success_callback(self.create_resource)
-        injector.inject(obj, name, url)
-
 
 class Resource(object):
     """Stub class wrapping response of resource request.
@@ -203,11 +189,19 @@ class Resource(object):
         else:
             super(Resource, self).__setattr__(name, value)
 
+    """Returns whether the object state is 'dirty' and has unsaved items.
+
+    It is a shorthand for 'len(self.acc) > 0'
+    """
     def is_changed(self):
         return len(self.acc) > 0
 
+    """Returns a dictionary of unsaved properties."""
     def get_delta(self):
-        delta = self.acc.copy()
+        return self.acc.copy()
+
+    """Flushes unsaved data to the resource instance."""
+    def flush(self):
         self._unlock()
 
         for k, v in self.acc.iteritems():
@@ -215,8 +209,6 @@ class Resource(object):
 
         self.acc.clear()
         self._lock()
-
-        return delta
 
     def _lock(self):
         def setter(k, v):
@@ -239,6 +231,11 @@ class ResourceList(Resource):
     def __len__(self):
         return len(self._list)
 
+    """Iterates through the all items stored on the server.
+
+    This method reads the data page by page, requesting new chunk of data
+    only after the previous one has been read entirely.
+    """
     def all(self, **kwargs):
         cnt = 0
         seq = self.get_self(**kwargs)
