@@ -82,12 +82,12 @@ class ServerInterface(object):
             files  - the files to be encoded.  This should be a dict in a
                      key:dict, filename:value and content:value format
         """
-        boundary = mimetools.choose_boundary()
+        boundary = '--%s--\r\n' % mimetools.choose_boundary()
         content = ""
 
         #TODO: use ''.join as the fastest method
         for key in params:
-            content += "--" + boundary + "\r\n"
+            content += boundary
             content += "Content-Disposition: form-data; name=\"%s\"\r\n" % key
             content += "\r\n"
             content += params[key] + "\r\n"
@@ -95,13 +95,13 @@ class ServerInterface(object):
         for key in files:
             filename = files[key]['filename']
             value = files[key]['content']
-            content += "--" + boundary + "\r\n"
+            content += boundary
             content += "Content-Disposition: form-data; name=\"%s\"; " % key
             content += "filename=\"%s\"\r\n" % filename
             content += "\r\n"
             content += value + "\r\n"
 
-        content += "--" + boundary + "--\r\n\r\n"
+        content += boundary + '\r\n'
 
         return "multipart/form-data; boundary=%s" % boundary, content
 
