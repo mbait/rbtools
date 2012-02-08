@@ -1,45 +1,14 @@
-import base64
 import cookielib
+import getpass
 import mimetools
 import os
-import re
-import urllib
 import urllib2
 from urlparse import urlparse
 
-from rbtools import get_package_version, get_version_string
-from rbtools.api.errors import *
-from rbtools.commands.utils import *
-
-try:
-    from json import loads as json_loads
-except ImportError:
-    from simplejson import loads as json_loads
+from rbtools import get_package_version
 
 
-class RequestWithMethod(urllib2.Request):
-    """
-    Wrapper class for urllib2.Request.  This allows for using PUT
-    and DELETE, in addition to POST and GET.
-    """
-    def __init__(self, method, *args, **kwargs):
-        """
-        Parameters:
-            method   - the HTTP request method (ie. POST, PUT, GET, DELETE)
-            url      - the address to make the request on
-            data     - the data to be used as the body of the request.  This
-                       should be un-encoded and in a dict key:value format.
-            headers  - the data to be used in the header of the request.  This
-                       should be un-encoded and in a dict key:value format.
-        """
-        self._method = method
-        urllib2.Request.__init__(self, *args, **kwargs)
-
-    def get_method(self):
-        return self._method or super(RequestWithMethod, self).get_method()
-
-
-class ReviewBoardHTTPPasswordMgr(urllib2.HTTPPasswordMgr):
+class PasswordMgr(urllib2.HTTPPasswordMgr):
     """ Adds HTTP authentication support for URLs.
 
     Python 2.4's password manager has a bug in http authentication when the
@@ -49,21 +18,6 @@ class ReviewBoardHTTPPasswordMgr(urllib2.HTTPPasswordMgr):
 
     See: http://bugs.python.org/issue974757
     """
-    def __init__(self, reviewboard_url, password_inputer=None):
-        self.passwd = {}
-        self.rb_url = reviewboard_url
-        self.rb_user = None
-        self.rb_pass = None
-
-        if password_inputer:
-            if isinstance(password_inputer, ReviewBoardPasswordInputer):
-                self.password_inputer = password_inputer
-            else:
-                raise InvalidPasswordInputerError(
-                    'The password inputer is not a ReviewBoardPasswordInputer')
-        else:
-            self.password_inputer = DefaultPasswordInputer()
-
     def find_user_password(self, realm, uri):
         if uri.startswith(self.rb_url):
             if self.rb_user is None or self.rb_pass is None:
@@ -98,10 +52,10 @@ class ServerInterface(object):
             self.cookie_file = '.default_cookie'
 
         if password_mgr and \
-            isinstance(password_mgr, ReviewBoardHTTPPasswordMgr):
+            isinstance(password_mgr, PasswordMgr):
             self.password_mgr = password_mgr
         else:
-            self.password_mgr = ReviewBoardHTTPPasswordMgr(self.server_url)
+            self.password_mgr = PasswordMgr(self.server_url)
 
         self.cookie_jar = cookielib.MozillaCookieJar(self.cookie_file)
 
@@ -119,117 +73,37 @@ class ServerInterface(object):
         ]
         urllib2.install_opener(opener)
 
-    def is_logged_in(self):
-        return self.has_valid_cookie()
-
-    def _request(self, method, url, fields=None, files=None, accept='application/json'):
-        """ Makes an HTTP request.
-
-        Encodes the input fields and files and performs an HTTP request to the
-        specified url using the specified method.  Any cookies set are stored.
-
-        Parameteres:
-            method      - the HTTP method to be used.  Accepts GET, POST,
-                          PUT, and DELETE
-            url         - the url to make the request to
-            fields      - any data to be specified in the request.  This data
-                          should be stored in a dict of key:value pairs
-            files       - any files to be specified in the request.  This data
-                          should be stored in a dict of key:dict,
-                          filename:value and content:value structure
-            accept      - what file types the client will accept, including
-                          priorities.
-
-        Returns:
-            The response from the server.  For more information view the
-            ReviewBoard WebAPI Documentation.
-        """
-        content_type, body = self._encode_multipart_formdata(fields, files)
-        headers = {
-            'Content-Type': content_type,
-            'Content-Length': str(len(body))
-        }
-
-        if accept:
-            headers['Accept'] = accept
-
-        if not self._valid_method(method):
-            raise InvalidRequestMethod('An invalid HTTP method was used.')
-
-        r = RequestWithMethod(method, url, body, headers)
-        resource = urllib2.urlopen(r)
-        self.cookie_jar.save(self.cookie_file)
-        return resource.read()
-
-    def get(self, url, accept=None):
-        """ Make an HTTP GET on the specified url returning the response.
-        """
-        return self._request('GET', url, accept=accept)
-
-    def delete(self, url, accept=None):
-        """ Make an HTTP DELETE on the specified url returning the response.
-        """
-        return self._request('DELETE', url, accept=accept)
-
-    def post(self, url, fields, files=None, accept=None):
-        """ Make an HTTP POST on the specified url returning the response.
-        """
-        return self._request('POST', url, fields, files, accept)
-
-    def put(self, url, fields, files=None, accept=None):
-        """ Make an HTTP PUT on the specified url returning the response.
-        """
-        return self._request('PUT', url, fields, files, accept)
-
-    def _encode_multipart_formdata(self, fields=None, files=None):
+    def _encode_multipart_formdata(self, params={}, files={}):
         """ Encodes data for use in an HTTP request.
 
         Paramaters:
-            fields - the fields to be encoded.  This should be a dict in a
+            params - the params to be encoded.  This should be a dict in a
                      key:value format
             files  - the files to be encoded.  This should be a dict in a
                      key:dict, filename:value and content:value format
         """
-        BOUNDARY = mimetools.choose_boundary()
+        boundary = mimetools.choose_boundary()
         content = ""
 
-        fields = fields or {}
-        files = files or {}
-
-        for key in fields:
-            content += "--" + BOUNDARY + "\r\n"
+        #TODO: use ''.join as the fastest method
+        for key in params:
+            content += "--" + boundary + "\r\n"
             content += "Content-Disposition: form-data; name=\"%s\"\r\n" % key
             content += "\r\n"
-            content += fields[key] + "\r\n"
+            content += params[key] + "\r\n"
 
         for key in files:
             filename = files[key]['filename']
             value = files[key]['content']
-            content += "--" + BOUNDARY + "\r\n"
+            content += "--" + boundary + "\r\n"
             content += "Content-Disposition: form-data; name=\"%s\"; " % key
             content += "filename=\"%s\"\r\n" % filename
             content += "\r\n"
             content += value + "\r\n"
 
-        content += "--" + BOUNDARY + "--\r\n"
-        content += "\r\n"
+        content += "--" + boundary + "--\r\n\r\n"
 
-        content_type = "multipart/form-data; boundary=%s" % BOUNDARY
-
-        return content_type, content
-
-    def _valid_method(self, method):
-        """ Checks if the method is a valid HTTP request for an RB server.
-
-        Returns true if the specified method is a valid HTTP request method for
-        the ServerInterface.  Valid methods are:
-                                           POST
-                                           PUT
-                                           GET
-                                           DELETE
-        """
-        return method == 'POST' or method == 'PUT' \
-            or method == 'GET' or method == 'DELETE'
+        return "multipart/form-data; boundary=%s" % boundary, content
 
     def has_valid_cookie(self):
         """ Checks if a valid cookie already exists for to the RB server.
@@ -250,11 +124,16 @@ class ServerInterface(object):
 
                 if not cookie.is_expired():
                     return True
-            except KeyError, e:
+            except KeyError:
                 # Cookie file loaded, but no cookie for this server
                 pass
-        except IOError, e:
+        except IOError:
             # Couldn't load cookie file
             pass
 
         return False
+
+
+def get_auth_data(realm, uri):
+    print "Enter username and password for %s at %s" % (realm, uri)
+    return raw_input('User: '), getpass.getpass('Password: ')
