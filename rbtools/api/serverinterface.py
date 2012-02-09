@@ -1,6 +1,7 @@
 import cookielib
 import getpass
 import mimetools
+import mimetypes
 import os
 import urllib2
 from urlparse import urlparse
@@ -73,37 +74,39 @@ class ServerInterface(object):
         ]
         urllib2.install_opener(opener)
 
-    def _encode_multipart_formdata(self, params={}, files={}):
+    def _encode_multipart_formdata(self, fields={}, files={}):
         """ Encodes data for use in an HTTP request.
 
         Paramaters:
-            params - the params to be encoded.  This should be a dict in a
+            fields - the fields to be encoded.  This should be a dict in a
                      key:value format
             files  - the files to be encoded.  This should be a dict in a
-                     key:dict, filename:value and content:value format
+                     key:filename:content format
         """
-        boundary = '--%s--\r\n' % mimetools.choose_boundary()
-        content = ""
+        CONTENT_HEADER = 'Content-Disposition: form-data'
 
-        #TODO: use ''.join as the fastest method
-        for key in params:
-            content += boundary
-            content += "Content-Disposition: form-data; name=\"%s\"\r\n" % key
-            content += "\r\n"
-            content += params[key] + "\r\n"
+        boundary = '--%s--' % mimetools.choose_boundary()
+        lines = []
 
-        for key in files:
-            filename = files[key]['filename']
-            value = files[key]['content']
-            content += boundary
-            content += "Content-Disposition: form-data; name=\"%s\"; " % key
-            content += "filename=\"%s\"\r\n" % filename
-            content += "\r\n"
-            content += value + "\r\n"
+        for key, value in fields:
+            lines.append(boundary)
+            lines.append('%s; name="%s"' % (CONTENT_HEADER, key))
+            lines.append('')
+            lines.append(value)
 
-        content += boundary + '\r\n'
+        for key, filename, content in files:
+            lines.append(boundary)
+            lines.append('%s; name="%s"; filename="%s"' %
+                         (CONTENT_HEADER, key, filename))
+            lines.append('Content-Type: %s' % self._get_content_type(filename))
+            lines.append('')
+            lines.append(content)
 
-        return "multipart/form-data; boundary=%s" % boundary, content
+        return ('multipart/form-data; boundary="%s"' % boundary,
+               '\r\n'.join(lines))
+
+    def _get_content_type(filename):
+        return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
 
     def has_valid_cookie(self):
         """ Checks if a valid cookie already exists for to the RB server.
