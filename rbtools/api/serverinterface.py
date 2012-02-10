@@ -1,7 +1,5 @@
 import mimetools
 import mimetypes
-import urllib2
-from urlparse import urlparse
 
 from rbtools.api.utils import TerminalAuthReader
 
@@ -12,40 +10,9 @@ class RBServer(object):
     A class which performs basic communication with a ReviewBoard server and
     tracks cookie information.
     """
-    class PasswordMgr(urllib2.HTTPPasswordMgr):
-        """ Adds HTTP authentication support for URLs.
-
-        Python 2.4's password manager has a bug in http authentication when the
-        target server uses a non-standard port.  This works around that bug on
-        Python 2.4 installs. This also allows post-review to prompt for
-        passwords in a consistent way.
-
-        See: http://bugs.python.org/issue974757
-        """
-        def __init__(self, reader):
-            super(RBServer.PasswordMgr, self).__init__()
-            self.user = None
-            self.password = None
-            self.auth_reader = reader
-
-        def find_user_password(self, realm, uri):
-            if uri.startswith(self.url):
-                if self.rb_user is None or self.rb_pass is None:
-                    self.user, self.password =\
-                        self.auth_reader.get_auth_data(realm, urlparse(uri)[1])
-
-                return self.user, self.password
-            else:
-                # If this is an auth request for some other domain (since HTTP
-                # handlers are global), fall back to standard password
-                # management.
-                return urllib2.HTTPPasswordMgr.find_user_password(self,
-                                                                  realm, uri)
-
     def __init__(self, url, cookie_file=None,
                  auth_reader=TerminalAuthReader()):
         self.url = url
-        self.pass_mgr = RBServer.PasswordMgr(auth_reader)
 
     def _encode_multipart_formdata(self, fields={}, files={}):
         """ Encodes data for use in an HTTP request.
