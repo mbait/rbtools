@@ -1,5 +1,4 @@
 import cookielib
-import getpass
 import mimetools
 import mimetypes
 import os
@@ -7,43 +6,52 @@ import urllib2
 from urlparse import urlparse
 
 from rbtools import get_package_version
+from rbtools.api.utils import TerminalAuthReader
 
 
-class PasswordMgr(urllib2.HTTPPasswordMgr):
-    """ Adds HTTP authentication support for URLs.
-
-    Python 2.4's password manager has a bug in http authentication when the
-    target server uses a non-standard port.  This works around that bug on
-    Python 2.4 installs. This also allows post-review to prompt for passwords
-    in a consistent way.
-
-    See: http://bugs.python.org/issue974757
-    """
-    def find_user_password(self, realm, uri):
-        if uri.startswith(self.rb_url):
-            if self.rb_user is None or self.rb_pass is None:
-                self.rb_user, self.rb_pass = \
-                    self.password_inputer.get_user_password(realm,
-                                                            urlparse(uri)[1])
-
-            return self.rb_user, self.rb_pass
-        else:
-            # If this is an auth request for some other domain (since HTTP
-            # handlers are global), fall back to standard password management.
-            return urllib2.HTTPPasswordMgr.find_user_password(self, realm, uri)
-
-
-class ServerInterface(object):
+class RBServer(object):
     """ An object used to make HTTP requests to a ReviewBoard server.
 
     A class which performs basic communication with a ReviewBoard server and
     tracks cookie information.
     """
-    def __init__(self, server_url, cookie_path_file=None, password_mgr=None):
-        self.server_url = server_url
+    class PasswordMgr(urllib2.HTTPPasswordMgr):
+        """ Adds HTTP authentication support for URLs.
 
-        if cookie_path_file:
-            self.cookie_file = cookie_path_file
+        Python 2.4's password manager has a bug in http authentication when the
+        target server uses a non-standard port.  This works around that bug on
+        Python 2.4 installs. This also allows post-review to prompt for
+        passwords in a consistent way.
+
+        See: http://bugs.python.org/issue974757
+        """
+        def __init__(self, reader):
+            super(RBServer.PasswordMgr, self).__init__()
+            self.user = None
+            self.password = None
+            self.auth_reader = reader
+
+        def find_user_password(self, realm, uri):
+            if uri.startswith(self.url):
+                if self.rb_user is None or self.rb_pass is None:
+                    self.user, self.password =\
+                        self.auth_reader.get_auth_data(realm, urlparse(uri)[1])
+
+                return self.user, self.password
+            else:
+                # If this is an auth request for some other domain (since HTTP
+                # handlers are global), fall back to standard password
+                # management.
+                return urllib2.HTTPPasswordMgr.find_user_password(self,
+                                                                  realm, uri)
+
+    def __init__(self, url, cookie_file=None,
+                 auth_reader=TerminalAuthReader()):
+        self.url = url
+        self.pass_mgr = RBServer.PasswordMgr(auth_reader)
+
+        if cookie_file:
+            self.cookie_file = cookie_file
             #if not os.path.isfile(cookie_path_file):
             #    temp_file = open(cookie_path_file, 'w')
             #    temp_file.close()
@@ -51,12 +59,6 @@ class ServerInterface(object):
             #self.cookie_file = cookie_path_file
         else:
             self.cookie_file = '.default_cookie'
-
-        if password_mgr and \
-            isinstance(password_mgr, PasswordMgr):
-            self.password_mgr = password_mgr
-        else:
-            self.password_mgr = PasswordMgr(self.server_url)
 
         self.cookie_jar = cookielib.MozillaCookieJar(self.cookie_file)
 
@@ -98,45 +100,11 @@ class ServerInterface(object):
             lines.append(boundary)
             lines.append('%s; name="%s"; filename="%s"' %
                          (CONTENT_HEADER, key, filename))
-            lines.append('Content-Type: %s' % self._get_content_type(filename))
+            lines.append('Content-Type: %s' %
+                         mimetypes.guess_type(filename)[0]
+                         or 'application/octet-stream')
             lines.append('')
             lines.append(content)
 
         return ('multipart/form-data; boundary="%s"' % boundary,
                '\r\n'.join(lines))
-
-    def _get_content_type(filename):
-        return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
-
-    def has_valid_cookie(self):
-        """ Checks if a valid cookie already exists for to the RB server.
-
-        Returns true if the ServerInterface can find and load a cookie for the
-        server that has not expired.
-        """
-        parsed_url = urlparse(self.server_url)
-        host = parsed_url[1]
-        host = host.split(":")[0]
-        path = parsed_url[2] or '/'
-
-        try:
-            self.cookie_jar.load(self.cookie_file, ignore_expires=True)
-
-            try:
-                cookie = self.cookie_jar._cookies[host][path]['rbsessionid']
-
-                if not cookie.is_expired():
-                    return True
-            except KeyError:
-                # Cookie file loaded, but no cookie for this server
-                pass
-        except IOError:
-            # Couldn't load cookie file
-            pass
-
-        return False
-
-
-def get_auth_data(realm, uri):
-    print "Enter username and password for %s at %s" % (realm, uri)
-    return raw_input('User: '), getpass.getpass('Password: ')
