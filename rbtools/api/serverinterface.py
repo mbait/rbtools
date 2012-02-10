@@ -66,10 +66,9 @@ class RBServer(object):
             self.cookie_jar.load()
 
         cookie_handler = urllib2.HTTPCookieProcessor(self.cookie_jar)
-        basic_auth_handler = urllib2.HTTPBasicAuthHandler(self.password_mgr)
-        digest_auth_handler = urllib2.HTTPDigestAuthHandler(self.password_mgr)
-        opener = urllib2.build_opener(cookie_handler,
-                                      basic_auth_handler,
+        basic_auth_handler = urllib2.HTTPBasicAuthHandler(self.pass_mgr)
+        digest_auth_handler = urllib2.HTTPDigestAuthHandler(self.pass_mgr)
+        opener = urllib2.build_opener(cookie_handler, basic_auth_handler,
                                       digest_auth_handler)
         opener.addheaders = [
             ('User-agent', 'RBTools/' + get_package_version())
@@ -80,9 +79,9 @@ class RBServer(object):
         """ Encodes data for use in an HTTP request.
 
         Paramaters:
-            fields - the fields to be encoded.  This should be a dict in a
+            fields - the fields to be encoded.  This should be a list in a
                      key:value format
-            files  - the files to be encoded.  This should be a dict in a
+            files  - the files to be encoded.  This should be a list in a
                      key:filename:content format
         """
         CONTENT_HEADER = 'Content-Disposition: form-data'
