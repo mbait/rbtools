@@ -1,11 +1,8 @@
-import cookielib
 import mimetools
 import mimetypes
-import os
 import urllib2
 from urlparse import urlparse
 
-from rbtools import get_package_version
 from rbtools.api.utils import TerminalAuthReader
 
 
@@ -49,31 +46,6 @@ class RBServer(object):
                  auth_reader=TerminalAuthReader()):
         self.url = url
         self.pass_mgr = RBServer.PasswordMgr(auth_reader)
-
-        if cookie_file:
-            self.cookie_file = cookie_file
-            #if not os.path.isfile(cookie_path_file):
-            #    temp_file = open(cookie_path_file, 'w')
-            #    temp_file.close()
-
-            #self.cookie_file = cookie_path_file
-        else:
-            self.cookie_file = '.default_cookie'
-
-        self.cookie_jar = cookielib.MozillaCookieJar(self.cookie_file)
-
-        if os.path.isfile(self.cookie_file):
-            self.cookie_jar.load()
-
-        cookie_handler = urllib2.HTTPCookieProcessor(self.cookie_jar)
-        basic_auth_handler = urllib2.HTTPBasicAuthHandler(self.pass_mgr)
-        digest_auth_handler = urllib2.HTTPDigestAuthHandler(self.pass_mgr)
-        opener = urllib2.build_opener(cookie_handler, basic_auth_handler,
-                                      digest_auth_handler)
-        opener.addheaders = [
-            ('User-agent', 'RBTools/' + get_package_version())
-        ]
-        urllib2.install_opener(opener)
 
     def _encode_multipart_formdata(self, fields={}, files={}):
         """ Encodes data for use in an HTTP request.
