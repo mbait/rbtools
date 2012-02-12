@@ -14,7 +14,7 @@ class RBServer(object):
                  auth_reader=TerminalAuthReader()):
         self.url = url
 
-    def _encode_multipart_formdata(self, fields={}, files={}):
+    def _encode_multipart_formdata(self, fields=[], files=[]):
         """ Encodes data for use in an HTTP request.
 
         Paramaters:
