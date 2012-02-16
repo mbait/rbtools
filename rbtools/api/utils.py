@@ -4,7 +4,7 @@ import getpass
 class AuthReader(object):
     """Generic interface for requesting authentication data."""
     def get_auth_data(self, realm, uri):
-        raise NotImplementedError('Interface must be implemented')
+        raise NotImplementedError
 
 
 class TerminalAuthReader(AuthReader):
