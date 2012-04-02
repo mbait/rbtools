@@ -1,6 +1,7 @@
 from rbtools.api.builder import ResourceBuilder
 from rbtools.utils.testbase import RBTestBase
 
+
 class StubTransport(object):
     pass
 
