@@ -9,3 +9,7 @@ class ResourceList(Resource):
 
 class RootResource(Resource):
     pass
+
+
+class DiffResource(Resource):
+    pass
