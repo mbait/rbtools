@@ -33,3 +33,8 @@ class ResourceBuilderTests(RBTestBase):
     def test_build_custom_resource(self):
         resource = self.builder.build(StubResource, {'stat': 'ok'})
         self.assertIsInstance(resource, StubResource)
+
+    def test_build_resource_with_token(self):
+        resource = self.builder.build(StubResource, {'tok': {}, 'stat': 'ok'},
+                                      token='tok')
+        self.assertIsInstance(resource, Resource)
