@@ -20,7 +20,9 @@ class MockTransport(object):
     def get_payload(self, path):
         payload = {'stat': 'ok'}
         resource = payload
-        names = [r for r in path.split('/') if r]
+
+        names = [name for name in path.split('/') if name]
+        children = [res for res in self._resources if res.startswith(path)]
 
         if names:
             res_name = names[-2][:-1]
@@ -40,6 +42,11 @@ class MockTransport(object):
             }
         }
 
+        for child in children:
+            names = [r for r in child.split('/') if r]
+            child_name = names[-2]
+            links[child_name] = {'method': 'GET', 'href': path + child_name + '/'}
+
         resource[ResourceBuilder.LINKS_TOK] = links
 
         return payload
@@ -48,8 +55,11 @@ class MockTransport(object):
         self._resources[path] = resource
 
     def send_request(self, request, callback):
-        pl = self._create_payload(request.get_url())
-        callback(simplejson.dumps(pl))
+        if request.get_method() == 'GET':
+            pl = self._create_payload(request.get_url())
+            callback(simplejson.dumps(pl))
+        else:
+            pass
 
 
 class MockTransportTests(unittest.TestCase):
@@ -62,9 +72,7 @@ class MockTransportTests(unittest.TestCase):
 
     def test_create_root_resource(self):
         payload = self._transport.get_payload('/')
-
         self.assertInAndEquals('stat', 'ok', payload)
-
         self.assertIn(ResourceBuilder.LINKS_TOK, payload)
         links = payload[ResourceBuilder.LINKS_TOK]
         self.assertIn(ResourceBuilder.SELF_TOK, links)
@@ -83,6 +91,17 @@ class MockTransportTests(unittest.TestCase):
         foo = payload['foo']
         self.assertInAndEquals('id', '42', foo)
         self.assertInAndEquals('attr', 'name', foo)
+
+    def test_create_links_for_child_resources(self):
+        self._transport.set_resource('/foos/42/', {'attr': 'name'})
+        self._transport.set_resource('/foos/42/bars/1', {'prop': 'email'})
+        self._transport.set_resource('/foos/42/bazes/2', {'prop': 'email'})
+
+        foo = self._transport.get_payload('/foos/42/')['foo']
+        self.assertIn('bars', foo['links'])
+        self.assertEquals(foo['links']['bars']['href'], '/foos/42/bars/')
+        self.assertIn('bazes', foo['links'])
+        self.assertEquals(foo['links']['bazes']['href'], '/foos/42/bazes/')
 
 
 class HttpRequestTests(unittest.TestCase):
