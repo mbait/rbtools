@@ -45,7 +45,8 @@ class MockTransport(object):
         for child in children:
             names = [r for r in child.split('/') if r]
             child_name = names[-2]
-            links[child_name] = {'method': 'GET', 'href': path + child_name + '/'}
+            links[child_name] = {'method': 'GET',
+                                 'href': path + child_name + '/'}
 
         resource[ResourceBuilder.LINKS_TOK] = links
 
@@ -70,8 +71,7 @@ class MockTransportTests(unittest.TestCase):
         self.assertIn(key, dct)
         self.assertEquals(dct[key], value)
 
-    def test_create_root_resource(self):
-        payload = self._transport.get_payload('/')
+    def assertIsRootResource(self, payload):
         self.assertInAndEquals('stat', 'ok', payload)
         self.assertIn(ResourceBuilder.LINKS_TOK, payload)
         links = payload[ResourceBuilder.LINKS_TOK]
@@ -83,11 +83,19 @@ class MockTransportTests(unittest.TestCase):
         self.assertIn('uri_templates', payload)
         self.assertInAndEquals('root', '/', payload['uri_templates'])
 
+    def assertIsChildResource(self, payload, name):
+        self.assertInAndEquals('stat', 'ok', payload)
+        self.assertIn(name, payload)
+        self.assertIsInstance(payload[name], dict) 
+
+    def test_create_root_resource(self):
+        self.assertIsRootResource(self._transport.get_payload('/'))
+
     def test_create_non_root_resource(self):
         self._transport.set_resource('/foos/42/', {'attr': 'name'})
         payload = self._transport.get_payload('/foos/42/')
-        self.assertInAndEquals('stat', 'ok', payload)
-        self.assertIn('foo', payload)
+        self.assertIsChildResource(payload, 'foo')
+
         foo = payload['foo']
         self.assertInAndEquals('id', '42', foo)
         self.assertInAndEquals('attr', 'name', foo)
@@ -97,7 +105,10 @@ class MockTransportTests(unittest.TestCase):
         self._transport.set_resource('/foos/42/bars/1', {'prop': 'email'})
         self._transport.set_resource('/foos/42/bazes/2', {'prop': 'email'})
 
-        foo = self._transport.get_payload('/foos/42/')['foo']
+        payload = self._transport.get_payload('/foos/42/')
+        self.assertIsChildResource(payload, 'foo')
+
+        foo = payload['foo']
         self.assertIn('bars', foo['links'])
         self.assertEquals(foo['links']['bars']['href'], '/foos/42/bars/')
         self.assertIn('bazes', foo['links'])
