@@ -2,10 +2,7 @@ import mimetools
 
 
 class HttpRequest(object):
-    """ High-level HTTP-request object.
-
-    It is implementaion-free and used by 'transport' objects in order.
-    """
+    """ High-level HTTP-request object."""
     def __init__(self, url, method='GET'):
         self._url = url
         self._method = method
