@@ -46,3 +46,18 @@ class DiffResource(Resource):
     def get_patch(self):
         """ Returns unified diff content."""
         pass
+
+
+class DiffListResource(ResourceList):
+    def create(self, diff_path, parent_path=None):
+        """ Uploads a new patch. Overrides default 'create' method.
+
+        This will implicitly create new Review Request draft.
+        """
+        r = HttpRequest('POST')
+        r.add_file('path', diff_path)
+
+        if parent_path:
+            r.add_file('parent_diff_path', parent_name)
+
+        self.transport.send(r)
