@@ -1,12 +1,32 @@
 import re
 import unittest
 
+from rbtools.api.builder import ResourceBuilder
 from rbtools.api.request import HttpRequest
 from rbtools.api.resource import Resource
 
 
-class StubResource(Resource):
-    pass
+class ResourceBuilderTests(unittest.TestCase):
+    def setUp(self):
+        self.res = Resource()
+        self.builder = ResourceBuilder()
+
+    def test_build_resource(self):
+        self.builder.build(self.res, {'foo': 'bar', 'id': 1, 'links': []})
+        self.assertEquals(self.res.foo, 'bar')
+        self.assertEquals(self.res.id, 1)
+
+    def test_build_resource_with_token(self):
+        payload = {'tok': {'baz': 'qux', 'count': 42, 'links': []}}
+        self.builder.build(self.res, payload, 'tok')
+        self.assertEquals(self.res.baz, 'qux')
+        self.assertEquals(self.res.count, 42)
+
+    def test_build_resource_list(self):
+        payload = {'list': [{}, {}], 'count': 'many', 'code': 200, 'links': []}
+        self.builder.build(self.res, payload, 'list')
+        self.assertEquals(self.res.count, 'many')
+        self.assertEquals(self.res.code, 200)
 
 
 class HttpRequestTests(unittest.TestCase):
