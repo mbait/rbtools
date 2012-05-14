@@ -12,7 +12,9 @@ class ResourceBuilderTests(unittest.TestCase):
         self.builder = ResourceBuilder()
 
     def test_build_resource(self):
-        self.builder.build(self.res, {'foo': 'bar', 'id': 1, 'links': []})
+        self.builder.build(self.res, {'foo': 'bar', 'id': 1, 'links': [],
+                                      'stat': 'ok'})
+        self.assertFalse(hasattr(self.res, 'stat'))
         self.assertEquals(self.res.foo, 'bar')
         self.assertEquals(self.res.id, 1)
 
