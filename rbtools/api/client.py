@@ -1,17 +1,28 @@
-from rbtools.api.resource import DiffResource, RootResource
+import re
+
+import rbtools.api.resource as res
+from rbtools.api.builder import ResourceBuilder
 
 
 class RBClient(object):
     """ Entry point for accessing RB resources through the web API.
     """
-    def __init__(self, url, bindings):
-        bindings = {
-            '/': RootResource,
-            '/review-requests/*/diffs/': DiffResource
-        }.update(bindings)
+    DEFAULT_BINDINGS = {
+        '/': res.RootResource,
+        '/review-requests/*/diffs/': res.DiffListResource,
+        '/review-requests/*/diffs/*/': res.DiffResource,
+    }
 
-    def get_root(self, callback):
-        pass
+    def __init__(self, url_prefix, bindings={}):
+        reg = {}
 
-    def get_root_sync(self):
-        pass
+        for b in [self.DEFAULT_BINDINGS, bindings]:
+            for pat, cls in b.iteritems():
+                reg[re.compile(pat.replace('*', '\w+'))] = cls
+
+        self._builder = ResourceBuilder(reg)
+
+    def get_root(self, callback=lambda: None):
+        Foo(self._builder).fetch('/', callback)
+        #callback(
+        #callback(self._builder.build('/'))

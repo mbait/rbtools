@@ -6,6 +6,10 @@ from rbtools.api.request import HttpRequest
 from rbtools.api.resource import Resource
 
 
+class ResourceTests(unittest.TestCase):
+    pass
+
+
 class ResourceBuilderTests(unittest.TestCase):
     def setUp(self):
         self.res = Resource()

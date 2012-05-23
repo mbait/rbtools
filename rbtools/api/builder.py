@@ -8,11 +8,10 @@ class ResourceBuilder(object):
 
     def build(self, resource, payload, token=None):
         excluded = self._EXCLUDE_ATTRS[:]
-
         # Root and all List resources do not have tokens.
         if token:
             if isinstance(payload[token], list):
-                # Must be List resource.
+                # Must be a list resource.
                 excluded.append(token)
 
                 for child in payload[token]:

@@ -5,15 +5,13 @@ class Resource(object):
     binding must be implemented as a sub-class of this class and then
     registered in the RBClient instance.
     """
-    def __init__(self, properties):
-        self._read_prop = properties
-        self._write_prop = {}
+    def __init__(self):
+        object.__setattr__(self, '_fields', {})
 
-    def __getattribute__(self, name):
+    def __getattr__(self, name):
         return self._fields[name]
 
-    def __setattribute__(self, name, value):
-        self._write_prop[name] = value
+    def __setattr__(self, name, value):
 
 
 class ResourceList(Resource):
