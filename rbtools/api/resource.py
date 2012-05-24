@@ -12,6 +12,7 @@ class Resource(object):
         return self._fields[name]
 
     def __setattr__(self, name, value):
+        object.__getattribute__(self, '_fields').__setitem__(name, value)
 
 
 class ResourceList(Resource):
@@ -59,3 +60,7 @@ class DiffListResource(ResourceList):
             r.add_file('parent_diff_path', parent_name)
 
         self.transport.send(r)
+
+# vim: set ts=4 :
+# vim: set sw=4 :
+# vim: set expandtab :
