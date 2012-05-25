@@ -1,9 +1,21 @@
 import re
 import unittest
 
+from rbtools.api.client import RBClient
 from rbtools.api.builder import ResourceBuilder
 from rbtools.api.request import HttpRequest
 from rbtools.api.resource import Resource
+from rbtools.api.transport import Transport, UrllibTransport
+
+
+class StubTransport(Transport):
+    def __init__(self, *args):
+        super(StubTransport, self).__init__(args)
+
+    def __call__(self, **kwargs):
+        pl = self._get_resource(self._request.get_url())
+
+        return self._builder.build(pl, self.__class__)
 
 
 class ResourceTests(unittest.TestCase):
@@ -79,3 +91,14 @@ class HttpRequestTests(unittest.TestCase):
 
     def test_post_form_files(self):
         pass
+
+
+class RBClientTests(unittest.TestCase):
+    def test_root_is_a_transport(self):
+        self.assertIsInstance(RBClient('').get_root, Transport)
+        self.assertIsInstance(RBClient('', UrllibTransport).get_root,
+                                       UrllibTransport)
+
+# vim: set sw=4 :
+# vim: set ts=4 :
+# vim: set expandtab :

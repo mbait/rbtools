@@ -9,7 +9,7 @@ class RBClient(object):
     """ Entry point for accessing RB resources through the web API.
     """
     def __init__(self, url, transport_cls=UrllibTransport):
-        self._root = transport_cls((ResourceBuilder(), HttpRequest(url + '/api')))
+        self._root = transport_cls(ResourceBuilder(), HttpRequest(url + '/api'))
 
     @property
     def get_root(self):
