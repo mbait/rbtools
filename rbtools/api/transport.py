@@ -1,6 +1,7 @@
 class Transport(object):
-	def __init__(self, link):
-		self._link = link
+	def __init__(self, builder, resource):
+		self._builder = builder
+		self._resource = resource
 
 
 class UrllibTransport(Transport):
