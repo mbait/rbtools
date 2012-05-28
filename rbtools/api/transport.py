@@ -6,7 +6,7 @@ class Transport(object):
 
 class UrllibTransport(Transport):
 	def __int__(self, *args):
-		super(UrllibTransport, self).__init__(args)
+		super(UrllibTransport, self).__init__(*args)
 
 	def __call__(self, **kwargs):
 		pass
@@ -15,7 +15,7 @@ class UrllibTransport(Transport):
 class AsyncTransport(Transport):
 	"""Needs to be implemented."""
 	def __int__(self, *args):
-		super(AsyncTransport, self).__init__(args)
+		super(AsyncTransport, self).__init__(*args)
 
 	def __call__(self, callback=None, **kwargs):
 		"""Should send request asynchronously and

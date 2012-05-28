@@ -10,7 +10,11 @@ from rbtools.api.transport import Transport, UrllibTransport
 
 class StubTransport(Transport):
     def __init__(self, *args):
-        super(StubTransport, self).__init__(args)
+        super(StubTransport, self).__init__(*args)
+
+    def _get_resource(self, request):
+        # TODO: implement
+        return ''
 
     def __call__(self, **kwargs):
         pl = self._get_resource(self._request.get_url())
@@ -94,10 +98,18 @@ class HttpRequestTests(unittest.TestCase):
 
 
 class RBClientTests(unittest.TestCase):
+    def setUp(self):
+        self.root = RBClient('', StubTransport).get_root()
+
     def test_root_is_a_transport(self):
         self.assertIsInstance(RBClient('').get_root, Transport)
         self.assertIsInstance(RBClient('', UrllibTransport).get_root,
-                                       UrllibTransport)
+                              UrllibTransport)
+
+    def test_get_primary_child(self):
+        info = self.root.get_info()
+        self.assertEquals(info.url, 'http://example.com')
+        self.assertEquals(info.version, 42)
 
 # vim: set sw=4 :
 # vim: set ts=4 :

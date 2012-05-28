@@ -3,10 +3,14 @@ class ResourceBuilder(object):
 
     _EXCLUDE_ATTRS = [LINKS_TOK, 'stat']
 
-    def __init__(self):
-        pass
+    def __init__(self, transport_cls):
+        self._transport_cls = transport_cls
 
-    def build(self, resource, payload, token=None):
+    def create_request(self, request, token=None):
+        return self._transport_cls((request, token))
+
+    def create_resource(self, payload, transport_cls, token=None):
+        payload = 
         excluded = self._EXCLUDE_ATTRS[:]
         # Root and all List resources do not have tokens.
         if token:
@@ -33,3 +37,7 @@ class ResourceBuilder(object):
             setattr(resource, name, 'x')
 
         return resource
+
+# vim: set ts=4 :
+# vim: set sw=4 :
+# vim: set expandtab :
